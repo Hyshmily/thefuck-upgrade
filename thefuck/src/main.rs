@@ -1,0 +1,23 @@
+use anyhow::Result;
+use clap::Parser;
+use thefuck::argument_parser::{Cli, SubCommand};
+use thefuck::entrypoints;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    match cli.subcommand {
+        Some(SubCommand::Alias) => {
+            entrypoints::print_alias().await;
+        }
+        Some(SubCommand::FirstUse) => {
+            entrypoints::firstuse::main().await?;
+        }
+        None => {
+            entrypoints::fix_command::run(cli.fix).await?;
+        }
+    }
+
+    Ok(())
+}
