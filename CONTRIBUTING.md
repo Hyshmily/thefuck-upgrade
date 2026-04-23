@@ -70,7 +70,7 @@ cargo doc --open
 
 ### Error Handling
 
-- Use `Result<T, E>` for fallible operations
+- 使用 `Result<T, E>` for fallible operations
 - Use `anyhow::Result` for application-level errors
 - Provide meaningful error messages
 
@@ -337,8 +337,6 @@ cargo build
 
 ## Community
 
-- Join our Discord server for discussions
-- Follow us on Twitter for updates
 - Report bugs on GitHub Issues
 - Suggest new features on GitHub Discussions
 
