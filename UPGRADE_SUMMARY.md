@@ -239,20 +239,6 @@ eval $(thefuck --alias)
 3. 确保使用 Python 3.11+
 4. 参考 Rust 规则编写指南更新
 
-## 🎯 未来规划
-
-### 第二阶段（进行中）
-- [ ] 规则插件系统
-- [ ] 性能基准测试
-- [ ] Web 配置界面
-- [ ] 移动端支持
-
-### 第三阶段（规划中）
-- [ ] AI 驱动的纠错
-- [ ] 规则市场
-- [ ] IDE 集成
-- [ ] 语音控制支持
-
 ## 📞 获取帮助
 
 ### 文档资源
@@ -263,7 +249,6 @@ eval $(thefuck --alias)
 ### 支持渠道
 - **Issues**: [GitHub Issues](https://github.com/HyShmily/thefuck-upgrade/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/HyShmily/thefuck-upgrade/discussions)
-- **社区**: 加入开发者讨论组
 
 ---
 
