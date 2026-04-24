@@ -3,7 +3,7 @@ use anyhow::Result;
 use dialoguer::{theme::ColorfulTheme, Select};
 use std::io::{self, Write};
 
-pub async fn display_corrections(corrections: &[MatchResult]) -> Result<()> {
+pub fn display_corrections(corrections: &[MatchResult]) {
     println!("Did you mean:");
     println!();
 
@@ -16,11 +16,9 @@ pub async fn display_corrections(corrections: &[MatchResult]) -> Result<()> {
         );
         println!();
     }
-
-    Ok(())
 }
 
-pub async fn wait_for_choice(corrections: &[MatchResult]) -> Result<Option<usize>> {
+pub fn wait_for_choice(corrections: &[MatchResult]) -> Result<Option<usize>> {
     if corrections.is_empty() {
         return Ok(None);
     }

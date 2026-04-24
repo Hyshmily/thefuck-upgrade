@@ -1,7 +1,6 @@
-use crate::conf;
 use anyhow::Result;
 
-pub async fn main() -> Result<()> {
+pub fn main() -> Result<()> {
     println!("The Fuck - Command Corrector");
     println!();
     println!("Thank you for installing The Fuck!");
@@ -9,7 +8,6 @@ pub async fn main() -> Result<()> {
     println!("To get started, add the following alias to your shell configuration:");
     println!();
 
-    // Print alias for different shells
     #[cfg(unix)]
     {
         println!("For bash/zsh:");
@@ -32,9 +30,6 @@ pub async fn main() -> Result<()> {
     println!("  gti status");
     println!("  fuck");
     println!();
-
-    // Create default config
-    conf::create_config_if_missing()?;
 
     Ok(())
 }

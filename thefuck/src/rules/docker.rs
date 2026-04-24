@@ -1,4 +1,5 @@
 use crate::types::{Command, MatchResult};
+use crate::util;
 
 pub fn docker_compose_v2_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() || command.parts[0] != "docker-compose" {
@@ -11,7 +12,7 @@ pub fn docker_compose_v2_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "docker_compose_v2".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.94,
+        similarity: util::SIMILARITY_MIGRATION,
     })
 }
 
@@ -35,6 +36,6 @@ pub fn docker_legacy_management_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "docker_legacy_management".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.92,
+        similarity: util::SIMILARITY_LEGACY,
     })
 }

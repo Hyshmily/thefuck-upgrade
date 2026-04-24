@@ -88,12 +88,6 @@ pub struct MatchResult {
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("No rules found")]
-    NoRulesFound,
-    #[error("No correction found")]
-    NoCorrectionFound,
-    #[error("Rule not found: {0}")]
-    RuleNotFound(String),
     #[error("Invalid command: {0}")]
     InvalidCommand(String),
 }

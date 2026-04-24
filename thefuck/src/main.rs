@@ -9,10 +9,10 @@ async fn main() -> Result<()> {
 
     match cli.subcommand {
         Some(SubCommand::Alias) => {
-            entrypoints::print_alias().await;
+            entrypoints::print_alias();
         }
         Some(SubCommand::FirstUse) => {
-            entrypoints::firstuse::main().await?;
+            entrypoints::firstuse::main()?;
         }
         None => {
             entrypoints::fix_command::run(cli.fix).await?;

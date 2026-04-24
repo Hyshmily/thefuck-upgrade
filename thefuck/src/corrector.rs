@@ -1,6 +1,7 @@
 use crate::conf::load_settings;
 use crate::rules::RuleRegistry;
 use crate::types::{Command, MatchResult, Settings};
+use crate::util;
 use anyhow::Result;
 
 pub struct Corrector {
@@ -37,7 +38,7 @@ impl Corrector {
         for correction in &mut corrections {
             if correction.similarity <= 0.0 {
                 correction.similarity =
-                    levenshtein_ratio(&self.command.raw, &correction.corrected_command);
+                    util::levenshtein_ratio(&self.command.raw, &correction.corrected_command);
             }
         }
 
@@ -48,45 +49,5 @@ impl Corrector {
         });
         corrections.truncate(self.settings.num_close_matches.max(1));
         corrections
-    }
-}
-
-// Simple Levenshtein distance implementation
-pub fn levenshtein(s1: &str, s2: &str) -> usize {
-    let s1 = s1.chars().collect::<Vec<_>>();
-    let s2 = s2.chars().collect::<Vec<_>>();
-
-    let mut dp = vec![vec![0; s2.len() + 1]; s1.len() + 1];
-
-    for i in 0..=s1.len() {
-        dp[i][0] = i;
-    }
-
-    for j in 0..=s2.len() {
-        dp[0][j] = j;
-    }
-
-    for i in 1..=s1.len() {
-        for j in 1..=s2.len() {
-            if s1[i - 1] == s2[j - 1] {
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                dp[i][j] = (dp[i - 1][j] + 1)
-                    .min(dp[i][j - 1] + 1)
-                    .min(dp[i - 1][j - 1] + 1);
-            }
-        }
-    }
-
-    dp[s1.len()][s2.len()]
-}
-
-pub fn levenshtein_ratio(s1: &str, s2: &str) -> f64 {
-    let distance = levenshtein(s1, s2);
-    let max_len = s1.len().max(s2.len());
-    if max_len == 0 {
-        1.0
-    } else {
-        1.0 - (distance as f64 / max_len as f64)
     }
 }

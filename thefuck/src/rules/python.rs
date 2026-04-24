@@ -1,4 +1,5 @@
 use crate::types::{Command, MatchResult};
+use crate::util;
 
 pub fn python_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -16,7 +17,7 @@ pub fn python_typo_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "python_command".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.96,
+        similarity: util::SIMILARITY_TYPO,
     })
 }
 
@@ -51,7 +52,7 @@ pub fn pip_to_uv_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "python_pip_to_uv".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.96,
+        similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
     })
 }
 
@@ -71,6 +72,6 @@ pub fn pip_to_python_module_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "python_pip_module".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.9,
+        similarity: util::SIMILARITY_UPSTREAM,
     })
 }

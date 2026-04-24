@@ -1,5 +1,4 @@
 use crate::argument_parser::FixOptions;
-use crate::conf::create_config_if_missing;
 use crate::conf::load_settings;
 use crate::corrector::Corrector;
 use crate::history;
@@ -7,8 +6,6 @@ use crate::io;
 use anyhow::Result;
 
 pub async fn run(options: FixOptions) -> Result<()> {
-    let _ = create_config_if_missing();
-
     if options.resolved_command().is_none() {
         println!("No command found. Run a command first, then execute 'fuck'.");
         return Ok(());
@@ -42,14 +39,14 @@ pub async fn run(options: FixOptions) -> Result<()> {
         return Ok(());
     }
 
-    io::display_corrections(&corrections).await?;
+    io::display_corrections(&corrections);
 
     let should_skip_confirmation =
         options.yes || !settings.require_confirmation || io::should_skip_confirmation();
     let choice = if should_skip_confirmation {
         Some(0)
     } else {
-        io::wait_for_choice(&corrections).await?
+        io::wait_for_choice(&corrections)?
     };
 
     if let Some(index) = choice {
@@ -67,16 +64,12 @@ pub async fn run(options: FixOptions) -> Result<()> {
 async fn execute_command(command: &str) -> Result<()> {
     use tokio::process::Command;
 
-    // Split command into parts
     let parts = shell_words::split(command)?;
     if parts.is_empty() {
         return Ok(());
     }
 
-    // Execute the command
     let mut child = Command::new(&parts[0]).args(&parts[1..]).spawn()?;
-
-    // Wait for completion
     child.wait().await?;
 
     Ok(())

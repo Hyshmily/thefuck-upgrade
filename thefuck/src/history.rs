@@ -4,6 +4,8 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
+const MAX_HISTORY_LINES: usize = 1000;
+
 pub async fn add_command(command: String) -> Result<()> {
     let path = history_path()?;
     if let Some(parent) = path.parent() {
@@ -13,8 +15,15 @@ pub async fn add_command(command: String) -> Result<()> {
     let mut file = fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(path)?;
+        .open(&path)?;
     writeln!(file, "{}", command)?;
+
+    // Trim history if it exceeds the limit
+    if let Ok(lines) = count_lines(&path) {
+        if lines > MAX_HISTORY_LINES {
+            trim_history(&path, MAX_HISTORY_LINES)?;
+        }
+    }
 
     Ok(())
 }
@@ -49,4 +58,19 @@ fn history_path() -> Result<PathBuf> {
         .ok_or_else(|| Error::InvalidCommand("No history directory".to_string()))?;
 
     Ok(base.join("thefuck").join("history"))
+}
+
+fn count_lines(path: &PathBuf) -> Result<usize> {
+    let content = fs::read_to_string(path)?;
+    Ok(content.lines().count())
+}
+
+fn trim_history(path: &PathBuf, max_lines: usize) -> Result<()> {
+    let content = fs::read_to_string(path)?;
+    let lines: Vec<&str> = content.lines().collect();
+    if lines.len() > max_lines {
+        let keep = lines[lines.len() - max_lines..].join("\n");
+        fs::write(path, keep)?;
+    }
+    Ok(())
 }

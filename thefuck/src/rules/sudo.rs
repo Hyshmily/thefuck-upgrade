@@ -1,4 +1,5 @@
 use crate::types::{Command, MatchResult};
+use crate::util;
 
 pub fn sudo_missing_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -16,6 +17,6 @@ pub fn sudo_missing_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "sudo_missing".to_string(),
         corrected_command: format!("sudo {}", command.raw),
-        similarity: 0.88,
+        similarity: util::SIMILARITY_SUDO,
     })
 }

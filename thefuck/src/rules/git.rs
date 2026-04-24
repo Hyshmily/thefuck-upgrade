@@ -1,4 +1,5 @@
 use crate::types::{Command, MatchResult};
+use crate::util;
 
 pub fn git_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -16,7 +17,7 @@ pub fn git_typo_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "git_command".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.97,
+        similarity: util::SIMILARITY_TYPO,
     })
 }
 
@@ -40,7 +41,7 @@ pub fn git_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "git_subcommand_typo".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.96,
+        similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
     })
 }
 
@@ -57,7 +58,7 @@ pub fn git_push_upstream_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "git_push_upstream".to_string(),
         corrected_command: format!("git push --set-upstream origin {branch}"),
-        similarity: 0.9,
+        similarity: util::SIMILARITY_UPSTREAM,
     })
 }
 
@@ -73,7 +74,7 @@ pub fn git_force_with_lease_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "git_force_with_lease".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.93,
+        similarity: util::SIMILARITY_FORCE,
     })
 }
 
@@ -106,6 +107,6 @@ pub fn git_checkout_to_switch_rule(command: &Command) -> Option<MatchResult> {
     Some(MatchResult {
         rule: "git_checkout_to_switch".to_string(),
         corrected_command: corrected.join(" "),
-        similarity: 0.95,
+        similarity: util::SIMILARITY_BRANCH,
     })
 }

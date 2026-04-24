@@ -1,5 +1,8 @@
+CLAUDE.md
+.claude/**
 # Rust
 target/
+
 Cargo.lock
 **/*.rs.bk
 *.pdb
@@ -72,6 +75,4 @@ yarn-error.log*
 .LSOverride
 
 # Windows
-Thumbs.db
-ehthumbs.db
 Desktop.ini
