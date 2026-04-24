@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "thefuck"
-version = "3.32.0"
+version = "3.33.0"
 description = "Magnificent app which corrects your previous console command"
 readme = "README.md"
 authors = [

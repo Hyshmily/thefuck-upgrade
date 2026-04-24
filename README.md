@@ -1,4 +1,4 @@
-# The Fuck [![Version](https://img.shields.io/badge/version-3.32.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
+# The Fuck [![Version](https://img.shields.io/badge/version-3.33.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HyShmily/thefuck-upgrade/blob/main/LICENSE)
 
@@ -21,6 +21,19 @@ The Fuck is a **Rust rewrite** of the classic command-line error correction tool
 - 🎯 **Smart Matching**: Optimized Levenshtein algorithm for more accurate corrections
 - 🔌 **Highly Extensible**: Clear modular design, easy to add new rules
 - 💪 **Modern Tool Support**: Supports `uv`, `pnpm`, `docker compose` and more
+
+## 🆕 What's New in 3.33.0
+
+> [!IMPORTANT]
+> 3.33.0 focuses on modern command migrations and safer correction defaults.
+
+- Added `git checkout` migration suggestions to `git switch` / `git switch -c`
+- Added `pip` modernization suggestions to `uv pip` while preserving `python -m pip` fallback
+- Added Docker legacy command migration suggestions:
+	- `docker-compose ...` -> `docker compose ...`
+	- `docker images ...` -> `docker image ls ...`
+	- `docker ps ...` -> `docker container ls ...`
+- Expanded integration tests to cover modernization rules and compatibility behavior
 
 ## 📖 Documentation
 

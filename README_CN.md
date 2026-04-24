@@ -1,4 +1,4 @@
-# The Fuck [![Version](https://img.shields.io/badge/version-3.32.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
+# The Fuck [![Version](https://img.shields.io/badge/version-3.33.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HyShmily/thefuck-upgrade/blob/main/LICENSE)
 
@@ -16,6 +16,15 @@
 - 🌐 跨平台：支持 Windows、macOS、Linux
 - 🔌 易扩展：规则系统模块化，方便添加新规则
 - 📦 现代工具链：Cargo、async/await、pre-commit、clippy
+
+## 3.33.0 更新摘要
+
+> [!NOTE]
+> 本版本重点是“新命令优先、旧命令平滑迁移”的纠错建议。
+
+- 增加 `git checkout` -> `git switch` / `git switch -c` 建议
+- 增加 `pip` -> `uv pip` 建议，并保留 `python -m pip` 兜底
+- 增加 Docker 旧命令向新子命令风格迁移建议
 
 > [!TIP]
 > 如果你只想快速上手，先看“快速开始”；如果你要改代码，先看“项目结构”和“开发指南”。

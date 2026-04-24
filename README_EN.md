@@ -7,6 +7,16 @@
 
 ## Project Overview
 
+## What's New in 3.33.0
+
+> [!NOTE]
+> Version 3.33.0 emphasizes modern CLI command migrations while keeping compatibility fallbacks.
+
+- Added migration suggestions from `git checkout` to `git switch`
+- Added modernization suggestions from `pip` to `uv pip`, while preserving `python -m pip` fallback
+- Added Docker legacy command migration suggestions for `docker images` and `docker ps`
+- Expanded integration tests for modernization and backward-compatibility behavior
+
 > [!IMPORTANT]
 > The following directory structure shows the complete layout of the project:
 
