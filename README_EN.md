@@ -239,6 +239,10 @@ thefuck-upgrade/
 ## Extension Development
 
 ### Adding New Rules
+
+> [!IMPORTANT]
+> Write tests before registering a new rule. That keeps matching behavior easier to verify and roll back.
+
 1. Create new file in `thefuck/src/rules/`
 2. Implement rule trait
 3. Register in `rules/mod.rs`

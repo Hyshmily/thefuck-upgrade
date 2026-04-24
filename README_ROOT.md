@@ -1,14 +1,15 @@
-# The Fuck ⚡
+# The Fuck
 
 [![中文](https://img.shields.io/badge/中文-简体-green.svg)](README_CN.md) [![English](https://img.shields.io/badge/English-blue.svg)](README_EN.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-3.32.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
-*The Fuck* 是一个强大的命令行纠错工具，能够自动纠正终端中的错误命令。
+> [!NOTE]
+> This project is the Rust rewrite of the classic command-line error correction tool. If you are new here, start with the language-specific README.
 
-## 🚀 快速开始
+## Quick Start
 
-### 一键安装
+### Install
 
 ```bash
 # Windows (PowerShell)
@@ -19,10 +20,10 @@ brew install thefuck
 
 # Linux
 sudo apt install thefuck  # Ubuntu/Debian
-sudo pacman -S thefuck  # Arch
+sudo pacman -S thefuck    # Arch
 ```
 
-### 基本使用
+### Use
 
 ```bash
 ➜ gti status
@@ -31,27 +32,23 @@ git status [enter/↑/↓/ctrl+c]
 * main
 ```
 
-## 📖 文档
+> [!TIP]
+> If you only need the core concept and install command, this page is enough. For full usage, open the Chinese or English README.
 
-选择您的语言查看详细文档：
+## Documentation
 
-- 🇨🇳 [中文文档](README_CN.md) - 完整的使用指南
-- 🇺🇸 [English Documentation](README_EN.md) - Complete documentation
+- [中文文档](README_CN.md) - Full usage guide in Chinese
+- [English Documentation](README_EN.md) - Full usage guide in English
+- [Project Structure](PROJECT_STRUCTURE.md) - Current code layout
+- [Upgrade Guide](UPGRADE_SUMMARY.md) - Migration notes and roadmap
+- [Contributing Guide](CONTRIBUTING.md) - Development workflow
 
-## 📋 项目信息
+## Project Info
 
-- **维护者**: [HyShmily](https://github.com/HyShmily)
-- **原项目**: [thefuck](https://github.com/nvbn/thefuck) (Python 版)
-- **技术栈**: Rust, Cargo, 异步编程
-- **许可证**: MIT
+- Maintainer: [HyShmily](https://github.com/HyShmily)
+- Original project: [thefuck](https://github.com/nvbn/thefuck)
+- Stack: Rust, Cargo, async programming
+- License: MIT
 
-## 🔗 相关链接
-
-- [项目结构](PROJECT_STRUCTURE.md)
-- [升级指南](UPGRADE_SUMMARY.md)
-- [贡献指南](CONTRIBUTING.md)
-- [Issues](https://github.com/HyShmily/thefuck-upgrade/issues)
-
----
-
-💡 **提示**: 第一次使用？先选择语言查看完整文档！
+> [!WARNING]
+> This repository contains a Rust implementation in progress. Some advanced behaviors may still be evolving, so check the tests and release notes before relying on edge-case corrections.

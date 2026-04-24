@@ -1,287 +1,145 @@
-# The Fuck - 项目结构文档
+# The Fuck [![Version](https://img.shields.io/badge/version-3.32.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HyShmily/thefuck-upgrade/blob/main/LICENSE)
 
-> [!NOTE]
-> 本文档详细介绍了 The Fuck Rust 重写版本的项目结构和模块设计。
+[![中文](https://img.shields.io/badge/中文-简体-green.svg)](README_CN.md) [![English](https://img.shields.io/badge/English-blue.svg)](README_EN.md)
 
-## 项目概述
-
-> [!IMPORTANT]
-> 以下目录结构展示了项目的完整布局：
-
-```
-thefuck-upgrade/
-├── thefuck/                    # Rust 核心包
-│   ├── Cargo.toml              # Rust 项目配置
-│   ├── build.rs                # 构建脚本（规则文件扫描）
-│   ├── src/
-│   │   ├── lib.rs              # 库入口（供 tests 和二进制复用）
-│   │   ├── main.rs             # Thefuck 主二进制入口
-│   │   ├── firstuse.rs         # Thefuck_firstuse 二进制入口
-│   │   ├── argument_parser.rs  # CLI 参数解析
-│   │   ├── types.rs            # 核心类型定义
-│   │   ├── conf.rs             # 配置管理
-│   │   ├── corrector.rs        # 规则匹配与排序
-│   │   ├── history.rs          # 历史记录持久化
-│   │   ├── io.rs               # 交互与输出
-│   │   ├── system.rs           # 终端系统初始化
-│   │   ├── entrypoints.rs      # 入口模块导出
-│   │   ├── entrypoints/
-│   │   │   ├── alias.rs
-│   │   │   ├── fix_command.rs
-│   │   │   └── firstuse.rs
-│   │   └── rules/
-│   │       ├── mod.rs
-│   │       ├── git.rs
-│   │       ├── python.rs
-│   │       └── cd.rs
-│   └── tests/
-│       └── main.rs             # 集成测试
-├── .github/                    # GitHub 配置
-│   └── workflows/              # CI/CD 工作流
-│       └── ci.yml             # 持续集成配置
-├── install.sh                 # Unix 安装脚本
-├── install.ps1                # Windows 安装脚本
-├── shell.sh                   # Shell 集成脚本
-├── verify.sh                  # Unix 验证脚本
-├── verify.ps1                 # Windows 验证脚本
-├── .gitignore                 # Git 忽略规则
-├── .pre-commit-config.yaml    # Pre-commit 钩子配置
-├── ruff.toml                  # 代码检查和格式化配置
-├── pyproject.toml             # Python 兼容性元数据
-├── Makefile                   # 基于 Make 的构建系统
-├── README.md                  # 主文档（指向中英文版本）
-├── README_CN.md               # 中文文档
-├── README_EN.md               # 英文文档
-├── LICENSE                    # MIT 许可证
-├── CHANGELOG.md               # 更新日志（建议添加）
-├── CODE_OF_CONDUCT.md         # 行为准则（建议添加）
-└── CONTRIBUTING.md            # 贡献指南
-```
-
-## 核心模块详解
-
-### 1. 核心模块 (`thefuck/src/`)
-
-> [!IMPORTANT]
-> 这些模块构成了应用程序的基础：
-
-#### `main.rs` - 应用程序入口
-- CLI 参数解析
-- 应用程序主逻辑
-- 错误处理和退出码管理
-- 命令行界面定义
-
-#### `types.rs` - 类型定义
-- `Command`: 输入命令结构
-- `MatchResult`: 匹配结果类型
-- `Settings`: 配置设置结构
-- 错误类型定义
-
-#### `conf.rs` - 配置管理
-- 配置文件加载和解析
-- 默认值设置
-- 配置验证
-- 运行时配置更新
-
-#### `corrector.rs` - 纠错核心
-- 命令纠正算法实现
-- 规则匹配逻辑
-- 相似度计算
-- 命令建议生成
-
-#### `system.rs` - 系统集成
-- 终端处理
-- 异步 I/O 操作
-- 平台特定功能
-- 进程管理
-
-#### `shells.rs` - Shell 支持
-- Shell 类型检测（Bash/Zsh/Fish/PowerShell）
-- Shell 特定功能
-- 平台适配
-- 路径处理
-
-#### `history.rs` - 命令历史
-- 历史命令管理
-- 模式匹配
-- 历史记录持久化
-- 智能建议
-
-#### `io.rs` - 输入输出
-- 异步输入处理
-- 输出格式化
-- 用户交互
-- 错误信息显示
-
-#### `output_readers.rs` - 输出读取
-- 命令输出解析
-- 错误信息提取
-- 模式匹配
-- 数据提取工具
-
-#### `exit_codes.rs` - 退出码定义
-- 标准退出码
-- 错误类型码
-- 成功状态码
-- 自定义退出码
-
-### 2. 入口模块 (`entrypoints/`)
+*The Fuck* 是一个命令行纠错工具，可以自动修正常见的错误命令。
 
 > [!NOTE]
-> 这些模块提供不同功能的主要入口点：
+> 这是 The Fuck 的 Rust 重写版本，当前实现重点放在更清晰的架构、更快的匹配和更容易维护的规则系统。
 
-#### `fix_command.rs` - 命令纠正主逻辑
-- 主要纠正流程
-- 规则应用
-- 用户交互
-- 命令执行
+## 概览
 
-#### `alias.rs` - Shell 别名生成
-- 别名生成逻辑
-- Shell 特定语法
-- 环境变量处理
-- 安装脚本生成
-
-#### `firstuse.rs` - 首次使用设置
-- 首次运行欢迎
-- 初始化配置
-- 检查依赖
-- 用户引导
-
-### 3. 规则系统 (`rules/`)
-
-> [!WARNING]
-> 规则系统负责纠正命令。添加新规则需要实现规则特征。
-
-#### `mod.rs` - 规则注册
-- 规则特征定义
-- 规则注册表
-- 规则加载
-- 特征实现
-
-#### `git.rs` - Git 规则
-- Git 命令纠错
-- 分支操作纠正
-- 提交信息修正
-- 远程操作处理
-
-#### `python.rs` - Python 规则
-- Python 命令纠正
-- 包管理器支持
-- 虚拟环境处理
-- 模块导入修正
-
-#### `cd.rs` - CD 命令纠正
-- 路径拼写修正
-- 目录跳转优化
-- 自动补全
-- 历史目录导航
-
-## 构建系统
-
-### Cargo.toml - Rust 项目配置
-- 项目元数据
-- 依赖声明
-- 构建配置
-- 特性标志
-
-### build.rs - 构建脚本
-- 规则编译
-- 资源处理
-- 构建时检查
-- 自定义构建步骤
-
-### Makefile - 构建自动化
-- 开发任务
-- 构建目标
-- 测试命令
-- 发布脚本
-
-## 质量保证
+- ⚡ 高性能：Rust 零成本抽象，启动快、匹配快
+- 🛡️ 类型安全：编译期检查减少运行时错误
+- 🌐 跨平台：支持 Windows、macOS、Linux
+- 🔌 易扩展：规则系统模块化，方便添加新规则
+- 📦 现代工具链：Cargo、async/await、pre-commit、clippy
 
 > [!TIP]
-> 通过在开发的每个阶段进行自动化检查和测试来保证质量。
+> 如果你只想快速上手，先看“快速开始”；如果你要改代码，先看“项目结构”和“开发指南”。
 
-### .pre-commit-config.yaml - Pre-commit 钩子
-- 代码格式化
-- 静态分析
-- 测试运行
-- 安全检查
+## 快速开始
 
-### ruff.toml - 代码质量
-- 代码风格规则
-- 格式化配置
-- 检查器设置
-- 排除规则
+### 安装
 
-### tests/ - 测试套件
-- 单元测试
-- 集成测试
-- 性能测试
-- 文档测试
+```bash
+# Windows (PowerShell)
+irm https://github.com/HyShmily/thefuck-upgrade/raw/main/install.ps1 | iex
 
-## 安装和分发
+# macOS
+brew install thefuck
 
-### 安装脚本
-- `install.sh` - Unix/macOS 安装
-- `install.ps1` - Windows PowerShell 安装
-- 自动检测环境
-- 配置 Shell 别名
+# Linux
+sudo apt install thefuck  # Ubuntu/Debian
+sudo pacman -S thefuck     # Arch
+```
 
-### 验证脚本
-- `verify.sh` - Unix 环境验证
-- `verify.ps1` - Windows 环境验证
-- 功能测试
-- 依赖检查
+### 使用
 
-## 扩展开发
+```bash
+➜ gti status
+➜ fuck
+git status [enter/↑/↓/ctrl+c]
+```
 
-### 添加新规则
-1. 在 `thefuck/src/rules/` 创建新文件
-2. 实现规则特征
-3. 在 `rules/mod.rs` 注册
-4. 添加测试用例
+### Shell 集成
 
-### 自定义构建
-1. 修改 `build.rs`
-2. 添加新的构建目标
-3. 更新 Makefile
-4. 配置发布流程
+```bash
+# Bash / Zsh
+ eval "$(thefuck --alias)"
 
-## 数据流
+# PowerShell
+Invoke-Expression (thefuck --alias | Out-String)
+```
 
-1. **输入**: 用户输入错误命令
-2. **解析**: `argument_parser.rs` 处理参数
-3. **配置**: `conf.rs` 加载设置
-4. **纠正**: `corrector.rs` 应用规则匹配
-5. **显示**: `io.rs` 展示纠正选项
-6. **执行**: 选择命令通过 shell 执行
-7. **历史**: `history.rs` 更新命令历史
+## 项目结构
 
-## 开发最佳实践
+> [!IMPORTANT]
+> 下面的目录以当前仓库中的 `thefuck/` 子包为准。
 
-### 代码组织
-- 模块化设计
-- 清晰的职责分离
-- 统一的命名约定
-- 完善的错误处理
+```text
+thefuck-upgrade/
+├── thefuck/
+│   ├── Cargo.toml
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── main.rs
+│   │   ├── firstuse.rs
+│   │   ├── argument_parser.rs
+│   │   ├── corrector.rs
+│   │   ├── history.rs
+│   │   ├── io.rs
+│   │   ├── system.rs
+│   │   ├── entrypoints/
+│   │   └── rules/
+│   └── tests/
+├── README.md
+├── README_CN.md
+├── README_EN.md
+├── README_ROOT.md
+├── PROJECT_STRUCTURE.md
+├── UPGRADE_SUMMARY.md
+└── CONTRIBUTING.md
+```
 
-### 测试策略
-- 单元测试覆盖核心逻辑
-- 集成测试验证整体功能
-- 性能测试确保优化
-- 文档测试示例代码
+## 核心模块
 
-### 文档维护
-- 保持 README 更新
-- 模块文档注释
-- API 文档生成
-- 示例代码完整
+### `corrector.rs`
+- 负责规则匹配、排序和相似度计算
 
----
+### `rules/`
+- 放置 Git、Python、cd、docker-compose、sudo 等规则
+- 新规则应先补测试，再注册到 `rules/mod.rs`
 
-**维护者**: [HyShmily](https://github.com/HyShmily)  
-**原项目作者**: [Nikita Sivakov](https://github.com/nvbn)  
-**许可证**: MIT
+### `entrypoints/`
+- 负责 `fuck`、`--alias`、`firstuse` 等入口流程
+
+### `io.rs`
+- 负责候选输出、交互选择和确认提示
+
+### `history.rs`
+- 负责历史记录持久化与读取
+
+> [!WARNING]
+> 规则系统会直接影响纠错结果。新增或修改规则时，请先写测试，再改注册表。
+
+## 开发指南
+
+```bash
+cd thefuck
+cargo build
+cargo test
+cargo fmt
+cargo clippy
+```
+
+> [!TIP]
+> 开发时优先执行 `cargo fmt` 和 `cargo test`，再跑 `cargo clippy`，这样反馈最快。
+
+## 添加新规则
+
+1. 在 `thefuck/src/rules/` 下创建新文件。
+2. 实现规则函数，返回 `Option<MatchResult>`。
+3. 在 `thefuck/src/rules/mod.rs` 注册。
+4. 在 `thefuck/tests/main.rs` 增加测试。
+
+> [!NOTE]
+> 如果规则依赖命令输出或环境状态，尽量把输入抽成最小可测单元，避免测试脆弱。
+
+## 相关文档
+
+- [项目结构](PROJECT_STRUCTURE.md)
+- [升级指南](UPGRADE_SUMMARY.md)
+- [贡献指南](CONTRIBUTING.md)
+- [英文文档](README_EN.md)
+
+## 维护信息
+
+- 维护者: [HyShmily](https://github.com/HyShmily)
+- 原项目作者: [Nikita Sivakov](https://github.com/nvbn)
+- 许可证: MIT
+
+> [!TIP]
+> 当前仓库仍处于持续优化中，建议优先参考最新的测试与项目结构文档。

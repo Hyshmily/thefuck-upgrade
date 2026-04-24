@@ -1,82 +1,85 @@
-# The Fuck 本地安装脚本
-# 这个脚本会自动完成安装过程
+# The Fuck local installation script
+# This script automates the local installation process.
 
-Write-Host "The Fuck Rust 版本安装程序" -ForegroundColor Green
+Write-Host "The Fuck Rust installer" -ForegroundColor Green
 Write-Host "=================================" -ForegroundColor Green
 
-# 第一步：创建本地 bin 目录
+# Step 1: create the local bin directory
 $binDir = "$env:USERPROFILE\.local\bin"
-Write-Host "创建 bin 目录: $binDir" -ForegroundColor Yellow
+Write-Host "Creating bin directory: $binDir" -ForegroundColor Yellow
 New-Item -ItemType Directory -Force -Path $binDir | Out-Null
 
-# 第二步：检查构建是否完成
+# Step 2: check whether the build artifacts exist
 $buildDir = "D:\fork\thefuck-upgrade\thefuck\target\release"
 if (Test-Path "$buildDir\thefuck.exe") {
-    Write-Host "✓ 找到构建文件" -ForegroundColor Green
+    Write-Host "✓ Build artifacts found" -ForegroundColor Green
 
-    # 第三步：复制文件
+    # Step 3: copy binaries
     Copy-Item "$buildDir\thefuck.exe" "$binDir\thefuck.exe" -Force
     Copy-Item "$buildDir\thefuck_firstuse.exe" "$binDir\thefuck_firstuse.exe" -Force
-    Write-Host "✓ 复制可执行文件完成" -ForegroundColor Green
+    Write-Host "✓ Copied executables" -ForegroundColor Green
 
-    # 第四步：添加到 PATH
+    # Step 4: add to PATH
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     if (-not $currentPath.Contains($binDir)) {
         [Environment]::SetEnvironmentVariable("Path", $currentPath + ";$binDir", "User")
-        Write-Host "✓ 已添加到 PATH" -ForegroundColor Green
-    } else {
-        Write-Host "✓ PATH 中已包含 bin 目录" -ForegroundColor Green
+        Write-Host "✓ Added to PATH" -ForegroundColor Green
+    }
+    else {
+        Write-Host "✓ PATH already contains the bin directory" -ForegroundColor Green
     }
 
-    # 第五步：设置 PowerShell 配置
-    Write-Host "正在配置 PowerShell 别名..." -ForegroundColor Yellow
+    # Step 5: configure PowerShell alias support
+    Write-Host "Configuring PowerShell alias..." -ForegroundColor Yellow
     $profilePath = $PROFILE
     if (-not (Test-Path $profilePath)) {
         New-Item -ItemType File -Path $profilePath -Force | Out-Null
     }
 
     $theFuckFunction = @"
-# The Fuck 函数
+# The Fuck function
 function Invoke-Fuck {
-    # 获取上一条命令
+    # Read the last command from history
     $cmd = Get-History -Count 1 | Select-Object -ExpandProperty CommandLine
     if (-not $cmd) {
-        Write-Host "无法获取命令历史" -ForegroundColor Red
+        Write-Host "Unable to read command history" -ForegroundColor Red
         return
     }
 
-    # 设置环境变量
+    # Set environment variables
     $env:TF_HISTORY = $cmd
     $env:THEFUCK_COMMAND_HISTORY = $cmd
 
-    # 执行 thefuck
+    # Run thefuck
     thefuck
 }
 
-# 设置 fuck 别名
+# Set the fuck alias
 Set-Alias -Name fuck -Value Invoke-Fuck
 
-Write-Host "The Fuck 已加载！" -ForegroundColor Green
+Write-Host "The Fuck loaded successfully!" -ForegroundColor Green
 "@
 
-    # 检查是否已经配置过
+    # Check whether the profile already contains the function
     $existingContent = Get-Content $profilePath -ErrorAction SilentlyContinue -Raw
     if ($existingContent -notlike "*Invoke-Fuck*") {
         Add-Content -Path $profilePath -Value $theFuckFunction
-        Write-Host "✓ PowerShell 配置已添加" -ForegroundColor Green
-    } else {
-        Write-Host "✓ PowerShell 已配置过" -ForegroundColor Green
+        Write-Host "✓ PowerShell profile updated" -ForegroundColor Green
+    }
+    else {
+        Write-Host "✓ PowerShell profile already configured" -ForegroundColor Green
     }
 
     Write-Host ""
-    Write-Host "安装完成！" -ForegroundColor Green
-    Write-Host "请重新打开 PowerShell 使配置生效" -ForegroundColor Yellow
-    Write-Host "然后测试：gti status, fuck" -ForegroundColor Cyan
+    Write-Host "Installation complete!" -ForegroundColor Green
+    Write-Host "Restart PowerShell for the changes to take effect." -ForegroundColor Yellow
+    Write-Host "Then test: gti status, fuck" -ForegroundColor Cyan
 
-} else {
-    Write-Host "⚠ 构建尚未完成" -ForegroundColor Yellow
-    Write-Host "请等待构建完成后再运行此脚本" -ForegroundColor Yellow
-    Write-Host "或者在另一个 PowerShell 窗口中运行：" -ForegroundColor Yellow
+}
+else {
+    Write-Host "⚠ Build is not ready yet" -ForegroundColor Yellow
+    Write-Host "Wait for the build to finish before running this script." -ForegroundColor Yellow
+    Write-Host "Or run the following in another PowerShell window:" -ForegroundColor Yellow
     Write-Host "cd D:\fork\thefuck-upgrade\thefuck" -ForegroundColor White
     Write-Host "cargo build --release" -ForegroundColor White
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TheFuck Installer for Linux/macOS
+# The Fuck Installer for Linux/macOS
 
 set -e
 
@@ -16,7 +16,7 @@ fi
 # Clone the repository
 REPO_DIR="$HOME/thefuck-upgrade"
 if [ -d "$REPO_DIR" ]; then
-    echo "The Fuck is already installed. Removing old installation..."
+    echo "The Fuck is already installed. Removing the old installation..."
     rm -rf "$REPO_DIR"
 fi
 

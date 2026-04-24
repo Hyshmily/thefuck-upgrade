@@ -1,4 +1,4 @@
-# TheFuck Installer for Windows
+# The Fuck Installer for Windows
 
 param(
     [string]$Destination = "$env:USERPROFILE\.cargo\bin",
@@ -19,8 +19,9 @@ $repoPath = "$env:TEMP\thefuck-upgrade"
 if (Test-Path $repoPath) {
     if ($Force) {
         Remove-Item $repoPath -Recurse -Force
-    } else {
-        Write-Host "The Fuck is already installed or directory exists. Use -Force to overwrite." -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "The Fuck is already installed or the target directory exists. Use -Force to overwrite." -ForegroundColor Yellow
         exit 0
     }
 }
@@ -45,7 +46,7 @@ Copy-Item "target\release\thefuck_firstuse.exe" $binPath -Force
 
 Write-Host "The Fuck installed successfully!" -ForegroundColor Green
 Write-Host ""
-Write-Host "Add to your PowerShell profile:"
+Write-Host "Add the following to your PowerShell profile:"
 Write-Host '  Add-Content $PROFILE @"
 function Invoke-Fuck {
     $cmd = Get-History -Count 1 | Select-Object -ExpandProperty CommandLine
