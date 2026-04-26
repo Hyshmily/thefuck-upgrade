@@ -1,6 +1,95 @@
 use crate::types::{Command, MatchResult};
 use crate::util;
 
+const GIT_SUBCOMMANDS: &[&str] = &[
+    "add",
+    "am",
+    "apply",
+    "archive",
+    "bisect",
+    "blame",
+    "branch",
+    "bundle",
+    "checkout",
+    "cherry-pick",
+    "citool",
+    "clean",
+    "clone",
+    "commit",
+    "config",
+    "describe",
+    "diff",
+    "difftool",
+    "fetch",
+    "format-patch",
+    "fsck",
+    "gc",
+    "gitk",
+    "grep",
+    "gui",
+    "init",
+    "instaweb",
+    "log",
+    "maintenance",
+    "merge",
+    "mergetool",
+    "mv",
+    "notes",
+    "pull",
+    "push",
+    "range-diff",
+    "rebase",
+    "reflog",
+    "remote",
+    "repack",
+    "replace",
+    "request-pull",
+    "reset",
+    "restore",
+    "revert",
+    "rm",
+    "shortlog",
+    "show",
+    "show-branch",
+    "sparse-checkout",
+    "stash",
+    "status",
+    "submodule",
+    "switch",
+    "tag",
+    "whatchanged",
+    "worktree",
+];
+
+const GIT_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
+    ("status", &["statsu", "stauts", "sttus"]),
+    ("commit", &["comit", "cmomit", "commti"]),
+    ("branch", &["brnch", "branck", "branc"]),
+    ("pull", &["pul", "pll"]),
+    ("push", &["psuh", "pus", "puh"]),
+    ("stash", &["stahs", "stsh", "stas"]),
+    ("merge", &["mrege", "merg", "mege"]),
+    ("diff", &["dff", "dif"]),
+    ("log", &["lg"]),
+    ("switch", &["swtich", "swich"]),
+    ("restore", &["restroe", "restor"]),
+    ("rebase", &["rebaes", "rebas"]),
+    ("cherry-pick", &["cherr-pick", "cherypick", "cherrypick"]),
+    ("fetch", &["fet ch", "feth", "ftch"]),
+    ("add", &["ad", "addd"]),
+    ("clone", &["cloen", "clne"]),
+    ("init", &["inti", "int"]),
+    ("reset", &["resat", "rest"]),
+    ("remote", &["remtoe", "remot"]),
+    ("checkout", &["chekcout", "checkut"]),
+];
+
+const THRESHOLD: f64 = 0.75;
+
+fn find_match(arg: &str) -> Option<(String, f64)> {
+    util::fuzzy_match_arg(arg, GIT_SUBCOMMANDS, GIT_SUBCOMMAND_TYPOS, THRESHOLD)
+}
+
 pub fn git_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
         return None;
@@ -26,31 +115,19 @@ pub fn git_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    let replacement = match command.parts[1].as_str() {
-        "statsu" | "stauts" => Some("status"),
-        "comit" | "cmomit" => Some("commit"),
-        "brnch" | "branck" => Some("branch"),
-        "pul" => Some("pull"),
-        "psuh" | "pus" => Some("push"),
-        "stahs" | "stsh" => Some("stash"),
-        "mrege" | "merg" => Some("merge"),
-        "dff" | "dif" => Some("diff"),
-        "lg" => Some("log"),
-        "swtich" => Some("switch"),
-        "restroe" => Some("restore"),
-        "rebaes" => Some("rebase"),
-        "cherr-pick" | "cherypick" => Some("cherry-pick"),
-        "fet ch" => Some("fetch"),
-        _ => None,
-    }?;
+    let arg = &command.parts[1];
+    if arg.starts_with('-') || GIT_SUBCOMMANDS.contains(&arg.as_str()) {
+        return None;
+    }
 
+    let (corrected_sub, similarity) = find_match(arg)?;
     let mut corrected = command.parts.clone();
-    corrected[1] = replacement.to_string();
+    corrected[1] = corrected_sub;
 
     Some(MatchResult {
         rule: "git_subcommand_typo",
         corrected_command: corrected.join(" "),
-        similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
+        similarity,
     })
 }
 

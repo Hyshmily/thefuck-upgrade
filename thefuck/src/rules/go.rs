@@ -1,6 +1,11 @@
 use crate::types::{Command, MatchResult};
 use crate::util;
 
+const GO_SUBCOMMANDS: &[&str] = &[
+    "build", "clean", "doc", "env", "fix", "fmt", "generate", "get", "install", "list", "mod",
+    "work", "run", "test", "tool", "version", "vet", "bug", "cache", "help",
+];
+
 const GO_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("build", &["buid", "buld", "bluid"]),
     ("test", &["tset", "tets", "tst"]),
@@ -12,6 +17,12 @@ const GO_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("vet", &["vte", "ve"]),
     ("get", &["gte", "ge"]),
 ];
+
+const THRESHOLD: f64 = 0.75;
+
+fn find_match(arg: &str) -> Option<(String, f64)> {
+    util::fuzzy_match_arg(arg, GO_SUBCOMMANDS, GO_SUBCOMMAND_TYPOS, THRESHOLD)
+}
 
 pub fn go_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -38,18 +49,18 @@ pub fn go_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    for &(correct, typos) in GO_SUBCOMMAND_TYPOS {
-        if typos.contains(&command.parts[1].as_str()) {
-            let mut corrected = command.parts.clone();
-            corrected[1] = correct.to_string();
-
-            return Some(MatchResult {
-                rule: "go_subcommand_typo",
-                corrected_command: corrected.join(" "),
-                similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
-            });
-        }
+    let arg = &command.parts[1];
+    if arg.starts_with('-') || GO_SUBCOMMANDS.contains(&arg.as_str()) {
+        return None;
     }
 
-    None
+    let (corrected_sub, similarity) = find_match(arg)?;
+    let mut corrected = command.parts.clone();
+    corrected[1] = corrected_sub;
+
+    Some(MatchResult {
+        rule: "go_subcommand_typo",
+        corrected_command: corrected.join(" "),
+        similarity,
+    })
 }

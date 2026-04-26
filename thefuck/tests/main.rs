@@ -269,7 +269,75 @@ fn test_mvn_no_correction_for_correct() {
     let corrector = Corrector::new(command, settings);
 
     let matches = corrector.find_corrections();
-    assert!(matches.is_empty());
+    assert!(matches
+        .iter()
+        .all(|m| m.rule != "mvn_subcommand_typo" && m.rule != "mvn_multiphase_typo"));
+}
+
+#[test]
+fn test_mvn_multiphase_typo_at_position_2() {
+    let command = Command::new("mvn clean instlal".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+
+    let matches = corrector.find_corrections();
+    assert!(matches
+        .iter()
+        .any(|m| m.corrected_command == "mvn clean install"));
+}
+
+#[test]
+fn test_mvn_multiphase_typo_fuzzy() {
+    let command = Command::new("mvn verfy".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+
+    let matches = corrector.find_corrections();
+    assert!(matches.iter().any(|m| m.corrected_command == "mvn verify"));
+}
+
+#[test]
+fn test_mvn_multiphase_skips_flags() {
+    let command = Command::new("mvn -DskipTests clean".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+
+    let matches = corrector.find_corrections();
+    assert!(matches
+        .iter()
+        .all(|m| m.rule != "mvn_subcommand_typo" && m.rule != "mvn_multiphase_typo"));
+}
+
+#[test]
+fn test_mvn_validate_typo() {
+    let command = Command::new("mvn validae".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+
+    let matches = corrector.find_corrections();
+    assert!(matches
+        .iter()
+        .any(|m| m.corrected_command == "mvn validate"));
+}
+
+#[test]
+fn test_mvn_multiphase_no_false_positive_on_correct_phases() {
+    let command = Command::new("mvn clean compile test".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+
+    let matches = corrector.find_corrections();
+    assert!(matches.iter().all(|m| m.rule != "mvn_multiphase_typo"));
+}
+
+#[test]
+fn test_mvn_subcommand_fuzzy_unknown_typo() {
+    let command = Command::new("mvn clan".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+
+    let matches = corrector.find_corrections();
+    assert!(matches.iter().any(|m| m.corrected_command == "mvn clean"));
 }
 
 #[test]

@@ -14,6 +14,12 @@ async fn main() -> Result<()> {
         Some(SubCommand::FirstUse) => {
             entrypoints::firstuse::main()?;
         }
+        Some(SubCommand::Update) => {
+            entrypoints::update::main()?;
+        }
+        Some(SubCommand::Delete) => {
+            entrypoints::delete::main()?;
+        }
         None => {
             entrypoints::fix_command::run(cli.fix).await?;
         }

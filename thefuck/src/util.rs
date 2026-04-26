@@ -41,3 +41,38 @@ pub const SIMILARITY_LEGACY: f64 = 0.92;
 pub const SIMILARITY_FORCE: f64 = 0.93;
 pub const SIMILARITY_UPSTREAM: f64 = 0.9;
 pub const SIMILARITY_SUDO: f64 = 0.88;
+
+/// Fuzzy-match an argument against a candidate list.
+/// Fast path: exact hit in `dict` → high-confidence `SIMILARITY_SUBCOMMAND_TYPO`.
+/// Fallback: best Levenshtein ratio ≥ `threshold` against all `candidates`.
+/// Returns `Some((corrected_word, similarity))` or `None`.
+pub fn fuzzy_match_arg(
+    arg: &str,
+    candidates: &[&str],
+    dict: &[(&str, &[&str])],
+    threshold: f64,
+) -> Option<(String, f64)> {
+    for &(correct, typos) in dict {
+        if typos.contains(&arg) {
+            return Some((correct.to_string(), SIMILARITY_SUBCOMMAND_TYPO));
+        }
+    }
+
+    let mut best: Option<(&str, f64)> = None;
+    for &candidate in candidates {
+        let ratio = levenshtein_ratio(arg, candidate);
+        if ratio >= threshold {
+            match best {
+                Some((_, best_ratio)) if ratio > best_ratio => {
+                    best = Some((candidate, ratio));
+                }
+                None => {
+                    best = Some((candidate, ratio));
+                }
+                _ => {}
+            }
+        }
+    }
+
+    best.map(|(word, ratio)| (word.to_string(), ratio))
+}

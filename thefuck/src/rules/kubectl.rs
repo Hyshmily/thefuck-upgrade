@@ -1,6 +1,52 @@
 use crate::types::{Command, MatchResult};
 use crate::util;
 
+const KUBECTL_SUBCOMMANDS: &[&str] = &[
+    "annotate",
+    "api-resources",
+    "api-versions",
+    "apply",
+    "attach",
+    "auth",
+    "autoscale",
+    "certificate",
+    "cluster-info",
+    "completion",
+    "config",
+    "cordon",
+    "cp",
+    "create",
+    "delete",
+    "describe",
+    "diff",
+    "drain",
+    "edit",
+    "exec",
+    "explain",
+    "expose",
+    "get",
+    "help",
+    "kustomize",
+    "label",
+    "logs",
+    "options",
+    "patch",
+    "plugin",
+    "port-forward",
+    "proxy",
+    "replace",
+    "rollout",
+    "run",
+    "scale",
+    "secrets",
+    "set",
+    "taint",
+    "top",
+    "uncordon",
+    "version",
+    "wait",
+];
+
 const KUBECTL_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("apply", &["aplpy", "appl", "app y"]),
     ("describe", &["describ", "descrbe", "descrie"]),
@@ -11,6 +57,17 @@ const KUBECTL_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("logs", &["log", "lgs"]),
     ("edit", &["edt", "edi"]),
 ];
+
+const THRESHOLD: f64 = 0.75;
+
+fn find_match(arg: &str) -> Option<(String, f64)> {
+    util::fuzzy_match_arg(
+        arg,
+        KUBECTL_SUBCOMMANDS,
+        KUBECTL_SUBCOMMAND_TYPOS,
+        THRESHOLD,
+    )
+}
 
 pub fn kubectl_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -37,18 +94,18 @@ pub fn kubectl_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    for &(correct, typos) in KUBECTL_SUBCOMMAND_TYPOS {
-        if typos.contains(&command.parts[1].as_str()) {
-            let mut corrected = command.parts.clone();
-            corrected[1] = correct.to_string();
-
-            return Some(MatchResult {
-                rule: "kubectl_subcommand_typo",
-                corrected_command: corrected.join(" "),
-                similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
-            });
-        }
+    let arg = &command.parts[1];
+    if arg.starts_with('-') || KUBECTL_SUBCOMMANDS.contains(&arg.as_str()) {
+        return None;
     }
 
-    None
+    let (corrected_sub, similarity) = find_match(arg)?;
+    let mut corrected = command.parts.clone();
+    corrected[1] = corrected_sub;
+
+    Some(MatchResult {
+        rule: "kubectl_subcommand_typo",
+        corrected_command: corrected.join(" "),
+        similarity,
+    })
 }

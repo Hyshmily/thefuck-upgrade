@@ -1,6 +1,69 @@
 use crate::types::{Command, MatchResult};
 use crate::util;
 
+const DOCKER_SUBCOMMANDS: &[&str] = &[
+    "attach",
+    "build",
+    "commit",
+    "compose",
+    "config",
+    "container",
+    "context",
+    "cp",
+    "create",
+    "diff",
+    "events",
+    "exec",
+    "export",
+    "history",
+    "image",
+    "images",
+    "import",
+    "info",
+    "inspect",
+    "kill",
+    "load",
+    "login",
+    "logout",
+    "logs",
+    "manifest",
+    "network",
+    "node",
+    "pause",
+    "plugin",
+    "port",
+    "ps",
+    "pull",
+    "push",
+    "rename",
+    "restart",
+    "rm",
+    "rmi",
+    "run",
+    "save",
+    "search",
+    "secret",
+    "service",
+    "stack",
+    "start",
+    "stats",
+    "stop",
+    "swarm",
+    "system",
+    "tag",
+    "top",
+    "trust",
+    "unpause",
+    "update",
+    "version",
+    "volume",
+    "wait",
+    "builder",
+    "buildx",
+    "scan",
+    "scout",
+];
+
 const DOCKER_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("images", &["imags", "imges", "imagse"]),
     ("container", &["contianer", "containr", "conainer"]),
@@ -10,7 +73,15 @@ const DOCKER_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("build", &["buid", "buld", "bluid"]),
     ("push", &["psuh", "pus"]),
     ("pull", &["pul", "pll"]),
+    ("exec", &["exc", "exe"]),
+    ("restart", &["restar", "restrt"]),
 ];
+
+const THRESHOLD: f64 = 0.75;
+
+fn find_match(arg: &str) -> Option<(String, f64)> {
+    util::fuzzy_match_arg(arg, DOCKER_SUBCOMMANDS, DOCKER_SUBCOMMAND_TYPOS, THRESHOLD)
+}
 
 pub fn docker_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -76,18 +147,18 @@ pub fn docker_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    for &(correct, typos) in DOCKER_SUBCOMMAND_TYPOS {
-        if typos.contains(&command.parts[1].as_str()) {
-            let mut corrected = command.parts.clone();
-            corrected[1] = correct.to_string();
-
-            return Some(MatchResult {
-                rule: "docker_subcommand_typo",
-                corrected_command: corrected.join(" "),
-                similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
-            });
-        }
+    let arg = &command.parts[1];
+    if arg.starts_with('-') || DOCKER_SUBCOMMANDS.contains(&arg.as_str()) {
+        return None;
     }
 
-    None
+    let (corrected_sub, similarity) = find_match(arg)?;
+    let mut corrected = command.parts.clone();
+    corrected[1] = corrected_sub;
+
+    Some(MatchResult {
+        rule: "docker_subcommand_typo",
+        corrected_command: corrected.join(" "),
+        similarity,
+    })
 }

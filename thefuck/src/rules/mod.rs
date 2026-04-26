@@ -1,23 +1,35 @@
 use crate::types::{Command, MatchResult};
 
 pub mod apt;
+pub mod aws;
+pub mod az;
 pub mod brew;
+pub mod bun;
 pub mod cargo;
 pub mod cd;
+pub mod choco;
 pub mod common;
 pub mod conda;
+pub mod dnf;
 pub mod docker;
 pub mod git;
 pub mod go;
+pub mod gradle;
+pub mod grep;
 pub mod kubectl;
 pub mod maven;
 pub mod missing_space;
 pub mod npm;
+pub mod pacman;
 pub mod pip;
+pub mod pnpm;
 pub mod python;
 pub mod sudo;
 pub mod systemctl;
 pub mod terraform;
+pub mod uv;
+pub mod winget;
+pub mod yarn;
 
 #[derive(Clone, Copy)]
 pub struct RuleDefinition {
@@ -102,6 +114,10 @@ impl RuleRegistry {
                 RuleDefinition {
                     name: "mvn_subcommand_typo",
                     apply: maven::mvn_subcommand_typo_rule,
+                },
+                RuleDefinition {
+                    name: "mvn_multiphase_typo",
+                    apply: maven::mvn_multiphase_typo_rule,
                 },
                 // -- Sudo rule --
                 RuleDefinition {
@@ -207,6 +223,110 @@ impl RuleRegistry {
                 RuleDefinition {
                     name: "conda_subcommand_typo",
                     apply: conda::conda_subcommand_typo_rule,
+                },
+                // -- Gradle rules --
+                RuleDefinition {
+                    name: "gradle_command",
+                    apply: gradle::gradle_typo_rule,
+                },
+                RuleDefinition {
+                    name: "gradle_subcommand_typo",
+                    apply: gradle::gradle_subcommand_typo_rule,
+                },
+                // -- Bun rules --
+                RuleDefinition {
+                    name: "bun_command",
+                    apply: bun::bun_typo_rule,
+                },
+                RuleDefinition {
+                    name: "bun_subcommand_typo",
+                    apply: bun::bun_subcommand_typo_rule,
+                },
+                // -- uv rules --
+                RuleDefinition {
+                    name: "uv_command",
+                    apply: uv::uv_typo_rule,
+                },
+                RuleDefinition {
+                    name: "uv_subcommand_typo",
+                    apply: uv::uv_subcommand_typo_rule,
+                },
+                // -- PNPM rules --
+                RuleDefinition {
+                    name: "pnpm_command",
+                    apply: pnpm::pnpm_typo_rule,
+                },
+                RuleDefinition {
+                    name: "pnpm_subcommand_typo",
+                    apply: pnpm::pnpm_subcommand_typo_rule,
+                },
+                // -- Yarn rules --
+                RuleDefinition {
+                    name: "yarn_command",
+                    apply: yarn::yarn_typo_rule,
+                },
+                RuleDefinition {
+                    name: "yarn_subcommand_typo",
+                    apply: yarn::yarn_subcommand_typo_rule,
+                },
+                // -- DNF rules --
+                RuleDefinition {
+                    name: "dnf_command",
+                    apply: dnf::dnf_typo_rule,
+                },
+                RuleDefinition {
+                    name: "dnf_subcommand_typo",
+                    apply: dnf::dnf_subcommand_typo_rule,
+                },
+                // -- Pacman rules --
+                RuleDefinition {
+                    name: "pacman_command",
+                    apply: pacman::pacman_typo_rule,
+                },
+                RuleDefinition {
+                    name: "pacman_subcommand_typo",
+                    apply: pacman::pacman_subcommand_typo_rule,
+                },
+                // -- Choco rules --
+                RuleDefinition {
+                    name: "choco_command",
+                    apply: choco::choco_typo_rule,
+                },
+                RuleDefinition {
+                    name: "choco_subcommand_typo",
+                    apply: choco::choco_subcommand_typo_rule,
+                },
+                // -- WinGet rules --
+                RuleDefinition {
+                    name: "winget_command",
+                    apply: winget::winget_typo_rule,
+                },
+                RuleDefinition {
+                    name: "winget_subcommand_typo",
+                    apply: winget::winget_subcommand_typo_rule,
+                },
+                // -- AWS CLI rules --
+                RuleDefinition {
+                    name: "aws_command",
+                    apply: aws::aws_typo_rule,
+                },
+                RuleDefinition {
+                    name: "aws_service_typo",
+                    apply: aws::aws_service_typo_rule,
+                },
+                // -- Azure CLI rules --
+                RuleDefinition {
+                    name: "az_command",
+                    apply: az::az_typo_rule,
+                },
+                RuleDefinition {
+                    name: "az_subcommand_typo",
+                    apply: az::az_subcommand_typo_rule,
+                },
+                // -- Grep rules --
+                RuleDefinition {
+                    name: "grep_recursive",
+                    apply: grep::grep_recursive_rule,
                 },
                 // -- Missing space / wrong hyphen rules --
                 RuleDefinition {

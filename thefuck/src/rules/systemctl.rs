@@ -1,6 +1,46 @@
 use crate::types::{Command, MatchResult};
 use crate::util;
 
+const SYSTEMCTL_SUBCOMMANDS: &[&str] = &[
+    "start",
+    "stop",
+    "restart",
+    "reload",
+    "enable",
+    "disable",
+    "status",
+    "mask",
+    "unmask",
+    "is-active",
+    "is-enabled",
+    "is-failed",
+    "show",
+    "cat",
+    "edit",
+    "list-units",
+    "list-unit-files",
+    "list-dependencies",
+    "list-sockets",
+    "list-timers",
+    "daemon-reload",
+    "get-default",
+    "set-default",
+    "isolate",
+    "kill",
+    "freeze",
+    "thaw",
+    "clean",
+    "reset-failed",
+    "list-jobs",
+    "cancel",
+    "reenable",
+    "preset",
+    "link",
+    "revert",
+    "add-wants",
+    "add-requires",
+];
+
 const SYSTEMCTL_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("start", &["satrt", "strt", "star"]),
     ("stop", &["stpo", "stp", "stopp"]),
@@ -11,6 +51,17 @@ const SYSTEMCTL_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("mask", &["maks", "msk"]),
     ("unmask", &["unmsk", "unmak", "unmaks"]),
 ];
+
+const THRESHOLD: f64 = 0.75;
+
+fn find_match(arg: &str) -> Option<(String, f64)> {
+    util::fuzzy_match_arg(
+        arg,
+        SYSTEMCTL_SUBCOMMANDS,
+        SYSTEMCTL_SUBCOMMAND_TYPOS,
+        THRESHOLD,
+    )
+}
 
 pub fn systemctl_typo_rule(command: &Command) -> Option<MatchResult> {
     if command.parts.is_empty() {
@@ -37,18 +88,18 @@ pub fn systemctl_subcommand_typo_rule(command: &Command) -> Option<MatchResult> 
         return None;
     }
 
-    for &(correct, typos) in SYSTEMCTL_SUBCOMMAND_TYPOS {
-        if typos.contains(&command.parts[1].as_str()) {
-            let mut corrected = command.parts.clone();
-            corrected[1] = correct.to_string();
-
-            return Some(MatchResult {
-                rule: "systemctl_subcommand_typo",
-                corrected_command: corrected.join(" "),
-                similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
-            });
-        }
+    let arg = &command.parts[1];
+    if arg.starts_with('-') || SYSTEMCTL_SUBCOMMANDS.contains(&arg.as_str()) {
+        return None;
     }
 
-    None
+    let (corrected_sub, similarity) = find_match(arg)?;
+    let mut corrected = command.parts.clone();
+    corrected[1] = corrected_sub;
+
+    Some(MatchResult {
+        rule: "systemctl_subcommand_typo",
+        corrected_command: corrected.join(" "),
+        similarity,
+    })
 }

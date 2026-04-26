@@ -18,6 +18,10 @@ pub enum SubCommand {
     Alias,
     #[command(about = "Print first use guide")]
     FirstUse,
+    #[command(about = "Print update instructions")]
+    Update,
+    #[command(about = "Remove history data and print uninstall instructions")]
+    Delete,
 }
 
 #[derive(Debug, Clone, Default, Args)]
