@@ -1,33 +1,33 @@
 use crate::types::{Command, Error};
 use anyhow::Result;
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser};
 
 #[derive(Debug, Clone, Parser)]
 #[command(about = "Magnificent app which corrects your previous console command")]
 pub struct Cli {
-    #[command(subcommand)]
-    pub subcommand: Option<SubCommand>,
+    #[arg(long, help = "Print shell alias")]
+    pub alias: bool,
+
+    #[arg(long, help = "Print first use guide")]
+    pub first_use: bool,
+
+    #[arg(long, help = "Print update instructions")]
+    pub update: bool,
+
+    #[arg(long, help = "Remove history data and print uninstall instructions")]
+    pub delete: bool,
 
     #[command(flatten)]
     pub fix: FixOptions,
-}
-
-#[derive(Debug, Clone, Subcommand)]
-pub enum SubCommand {
-    #[command(about = "Print shell alias")]
-    Alias,
-    #[command(about = "Print first use guide")]
-    FirstUse,
-    #[command(about = "Print update instructions")]
-    Update,
-    #[command(about = "Remove history data and print uninstall instructions")]
-    Delete,
 }
 
 #[derive(Debug, Clone, Default, Args)]
 pub struct FixOptions {
     #[arg(long, help = "Original command to fix")]
     pub command: Option<String>,
+
+    #[arg(num_args = 0.., help = "Original command to fix")]
+    pub raw_command: Vec<String>,
 
     #[arg(long = "num-matches", help = "Number of matches to show")]
     pub num_matches: Option<usize>,
@@ -49,6 +49,13 @@ impl FixOptions {
     pub fn resolved_command(&self) -> Option<String> {
         self.command
             .clone()
+            .or_else(|| {
+                if self.raw_command.is_empty() {
+                    None
+                } else {
+                    Some(self.raw_command.join(" "))
+                }
+            })
             .or_else(|| std::env::var("TF_HISTORY").ok())
             .or_else(|| std::env::var("THEFUCK_COMMAND").ok())
     }
