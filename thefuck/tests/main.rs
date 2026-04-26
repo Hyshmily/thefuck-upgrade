@@ -13,7 +13,7 @@ fn test_command_creation() {
 #[test]
 fn test_empty_command() {
     let cmd = Command::new("".to_string());
-    assert!(cmd.is_empty());
+    assert!(cmd.parts.is_empty());
 }
 
 #[test]

@@ -14,8 +14,12 @@ pub fn sudo_missing_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
+    if command.parts[0] == "sudo" {
+        return None;
+    }
+
     Some(MatchResult {
-        rule: "sudo_missing".to_string(),
+        rule: "sudo_missing",
         corrected_command: format!("sudo {}", command.raw),
         similarity: util::SIMILARITY_SUDO,
     })

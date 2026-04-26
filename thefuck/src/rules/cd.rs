@@ -18,14 +18,14 @@ pub fn cd_correction_rule(command: &Command) -> Option<MatchResult> {
         .filter_map(Result::ok)
         .filter(|entry| entry.path().is_dir())
         .filter_map(|entry| {
-            let name = entry.file_name().to_string_lossy().to_string();
+            let name = entry.file_name().to_string_lossy().into_owned();
             let distance = util::levenshtein(target, &name);
             (distance <= 2).then_some((name, distance))
         })
         .min_by_key(|(_, distance)| *distance)?;
 
     Some(MatchResult {
-        rule: "cd_correction".to_string(),
+        rule: "cd_correction",
         corrected_command: format!("cd {}", best.0),
         similarity: 1.0 - (best.1 as f64 / target.len().max(best.0.len()) as f64),
     })

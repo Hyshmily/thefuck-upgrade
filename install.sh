@@ -21,7 +21,7 @@ if [ -d "$REPO_DIR" ]; then
 fi
 
 echo "Cloning repository..."
-git clone https://github.com/nvbn/thefuck-upgrade.git "$REPO_DIR"
+git clone https://github.com/HyShmily/thefuck-upgrade.git "$REPO_DIR"
 cd "$REPO_DIR/thefuck"
 
 # Build The Fuck

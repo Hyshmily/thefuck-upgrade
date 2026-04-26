@@ -1,38 +1,31 @@
-use crate::conf::load_settings;
 use crate::rules::RuleRegistry;
-use crate::types::{Command, MatchResult, Settings};
+use crate::types::{Command, MatchResult};
 use crate::util;
-use anyhow::Result;
 
 pub struct Corrector {
-    settings: Settings,
     command: Command,
     registry: RuleRegistry,
+    rules: Vec<String>,
+    exclude_rules: Vec<String>,
+    num_close_matches: usize,
 }
 
 impl Corrector {
-    pub fn from_command(command: Command) -> Result<Self> {
-        let settings = load_settings()?;
-        Ok(Self::new(command, settings))
-    }
-
-    pub fn new(command: Command, settings: Settings) -> Self {
+    pub fn new(command: Command, settings: crate::types::Settings) -> Self {
         Self {
-            settings,
             command,
             registry: RuleRegistry::new(),
+            rules: settings.rules,
+            exclude_rules: settings.exclude_rules,
+            num_close_matches: settings.num_close_matches,
         }
-    }
-
-    pub fn settings(&self) -> &Settings {
-        &self.settings
     }
 
     pub fn find_corrections(&self) -> Vec<MatchResult> {
         let mut corrections = self.registry.match_command(
             &self.command,
-            &self.settings.rules,
-            &self.settings.exclude_rules,
+            &self.rules,
+            &self.exclude_rules,
         );
 
         for correction in &mut corrections {
@@ -47,7 +40,7 @@ impl Corrector {
                 .partial_cmp(&a.similarity)
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
-        corrections.truncate(self.settings.num_close_matches.max(1));
+        corrections.truncate(self.num_close_matches.max(1));
         corrections
     }
 }

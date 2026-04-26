@@ -78,30 +78,24 @@ impl RuleRegistry {
         }
     }
 
-    pub fn register(&mut self, rule: RuleDefinition) {
-        self.rules.push(rule);
-    }
-
     pub fn match_command(
         &self,
         command: &Command,
         enabled_rules: &[String],
         excluded_rules: &[String],
     ) -> Vec<MatchResult> {
+        let all_on = enabled_rules.is_empty()
+            || enabled_rules.iter().any(|r| r == "All rules enabled");
+
         self.rules
             .iter()
-            .filter(|rule| is_enabled(rule.name, enabled_rules, excluded_rules))
+            .filter(|rule| {
+                if excluded_rules.iter().any(|r| r == rule.name) {
+                    return false;
+                }
+                all_on || enabled_rules.iter().any(|r| r == rule.name)
+            })
             .filter_map(|rule| (rule.apply)(command))
             .collect()
     }
-}
-
-fn is_enabled(rule_name: &str, enabled_rules: &[String], excluded_rules: &[String]) -> bool {
-    if excluded_rules.iter().any(|rule| rule == rule_name) {
-        return false;
-    }
-
-    enabled_rules.is_empty()
-        || enabled_rules.iter().any(|rule| rule == "All rules enabled")
-        || enabled_rules.iter().any(|rule| rule == rule_name)
 }

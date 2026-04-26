@@ -27,7 +27,7 @@ if (Test-Path $repoPath) {
 }
 
 Write-Host "Cloning repository..." -ForegroundColor Yellow
-git clone https://github.com/nvbn/thefuck-upgrade.git $repoPath
+git clone https://github.com/HyShmily/thefuck-upgrade.git $repoPath
 
 # Build The Fuck
 Write-Host "Building The Fuck..." -ForegroundColor Yellow

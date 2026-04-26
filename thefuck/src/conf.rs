@@ -12,10 +12,6 @@ pub fn load_settings() -> Result<Settings> {
         settings.alter_history = value;
     }
 
-    if let Some(value) = env_bool("THEFUCK_DEBUG") {
-        settings.debug = value;
-    }
-
     if let Ok(value) = std::env::var("THEFUCK_NUM_CLOSE_MATCHES") {
         if let Ok(parsed) = value.parse::<usize>() {
             settings.num_close_matches = parsed.max(1);
@@ -38,7 +34,7 @@ fn parse_list(value: &str) -> Vec<String> {
         .split(',')
         .map(str::trim)
         .filter(|s| !s.is_empty())
-        .map(ToOwned::to_owned)
+        .map(|s| s.to_string())
         .collect()
 }
 

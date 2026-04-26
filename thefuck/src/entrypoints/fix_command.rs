@@ -18,15 +18,15 @@ pub async fn run(options: FixOptions) -> Result<()> {
     if options.no_alter_history {
         settings.alter_history = false;
     }
-    if options.debug {
-        settings.debug = true;
-    }
     if options.yes {
         settings.require_confirmation = false;
     }
 
     let cmd = options.to_command()?;
-    let corrector = Corrector::new(cmd.clone(), settings.clone());
+    let cmd_raw = cmd.raw.clone();
+    let alter_history = settings.alter_history;
+    let require_confirmation = settings.require_confirmation;
+    let corrector = Corrector::new(cmd, settings);
     let corrections = corrector.find_corrections();
 
     if corrections.is_empty() {
@@ -42,7 +42,7 @@ pub async fn run(options: FixOptions) -> Result<()> {
     io::display_corrections(&corrections);
 
     let should_skip_confirmation =
-        options.yes || !settings.require_confirmation || io::should_skip_confirmation();
+        options.yes || !require_confirmation;
     let choice = if should_skip_confirmation {
         Some(0)
     } else {
@@ -52,8 +52,8 @@ pub async fn run(options: FixOptions) -> Result<()> {
     if let Some(index) = choice {
         let selected = &corrections[index];
         println!("Executing: {}", selected.corrected_command);
-        if settings.alter_history {
-            history::add_command(cmd.raw.clone()).await?;
+        if alter_history {
+            history::add_command(cmd_raw).await?;
         }
         execute_command(&selected.corrected_command).await?;
     }

@@ -5,6 +5,5 @@ pub mod entrypoints;
 pub mod history;
 pub mod io;
 pub mod rules;
-pub mod shells;
 pub mod types;
 pub mod util;

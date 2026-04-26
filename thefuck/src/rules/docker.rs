@@ -10,7 +10,7 @@ pub fn docker_compose_v2_rule(command: &Command) -> Option<MatchResult> {
     corrected.extend(command.parts.iter().skip(1).cloned());
 
     Some(MatchResult {
-        rule: "docker_compose_v2".to_string(),
+        rule: "docker_compose_v2",
         corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_MIGRATION,
     })
@@ -34,7 +34,7 @@ pub fn docker_legacy_management_rule(command: &Command) -> Option<MatchResult> {
     corrected.extend(command.parts.iter().skip(2).cloned());
 
     Some(MatchResult {
-        rule: "docker_legacy_management".to_string(),
+        rule: "docker_legacy_management",
         corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_LEGACY,
     })

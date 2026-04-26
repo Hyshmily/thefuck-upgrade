@@ -23,7 +23,7 @@ Thank you for your interest in contributing to The Fuck! This document will guid
 
 ```bash
 # Clone the repository
-git clone https://github.com/nvbn/thefuck-upgrade.git
+git clone https://github.com/HyShmily/thefuck-upgrade.git
 cd thefuck-upgrade
 
 # Build the project
@@ -70,7 +70,7 @@ cargo doc --open
 
 ### Error Handling
 
-- 使用 `Result<T, E>` for fallible operations
+- Use `Result<T, E>` for fallible operations
 - Use `anyhow::Result` for application-level errors
 - Provide meaningful error messages
 
@@ -94,23 +94,22 @@ A rule in The Fuck is a function that takes a command and returns a correction.
 
 ```rust
 use crate::types::{Command, MatchResult};
-use anyhow::Result;
 
-pub fn my_rule(command: &Command) -> Result<Option<MatchResult>> {
+pub fn my_rule(command: &Command) -> Option<MatchResult> {
     // Check if command matches this rule
     if command.parts.len() < 2 || command.parts[0] != "mycommand" {
-        return Ok(None);
+        return None;
     }
 
     // Check for specific error patterns
     if command.raw.contains("error") {
-        Ok(Some(MatchResult {
-            rule: "my_rule".to_string(),
+        Some(MatchResult {
+            rule: "my_rule",
             corrected_command: format!("corrected {}", &command.parts[1..].join(" ")),
             similarity: 0.9,
-        }))
+        })
     } else {
-        Ok(None)
+        None
     }
 }
 ```
@@ -120,11 +119,13 @@ pub fn my_rule(command: &Command) -> Result<Option<MatchResult>> {
 Add your rule to the rule registry:
 
 ```rust
-// src/rules/mod.rs
-pub mod my_rule;
-
-// In RuleRegistry::new()
-registry.register(my_rule::my_rule);
+// In src/rules/mod.rs:
+// 1. Add `pub mod my_rule;` at the top
+// 2. Add a RuleDefinition entry in RuleRegistry::new():
+RuleDefinition {
+    name: "my_rule",
+    apply: my_rule::my_rule,
+},
 ```
 
 ### Rule Guidelines
@@ -138,20 +139,21 @@ registry.register(my_rule::my_rule);
 
 ```rust
 // Git rules
-pub fn git_rule(command: &Command) -> Result<Option<MatchResult>> {
-    if command.parts[0] == "git" && command.parts[1] == "push" {
-        // Handle push errors
-        if let Some(output) = get_command_output(command) {
-            if output.contains("non-fast-forward") {
-                return Ok(Some(MatchResult {
-                    rule: "git_force_push".to_string(),
-                    corrected_command: "git push --force".to_string(),
-                    similarity: 0.95,
-                }));
-            }
-        }
+pub fn git_rule(command: &Command) -> Option<MatchResult> {
+    if command.parts.len() < 2 || command.parts[0] != "git" {
+        return None;
     }
-    Ok(None)
+
+    match command.parts[1].as_str() {
+        "psuh" | "pus" => Some(MatchResult {
+            rule: "git_subcommand_typo",
+            corrected_command: command.parts.iter().enumerate()
+                .map(|(i, p)| if i == 1 { "push".to_string() } else { p.clone() })
+                .collect::<Vec<_>>().join(" "),
+            similarity: 0.96,
+        }),
+        _ => None,
+    }
 }
 ```
 
@@ -170,12 +172,10 @@ mod tests {
     #[test]
     fn test_my_rule() {
         let cmd = Command::new("mycommand --flag".to_string());
-        
-        let result = my_rule(&cmd).unwrap();
-        assert!(result.is_none());
+        assert!(my_rule(&cmd).is_none());
 
         let cmd = Command::new("mycommand --error-flag".to_string());
-        let result = my_rule(&cmd).unwrap();
+        let result = my_rule(&cmd);
         assert!(result.is_some());
         assert_eq!(result.unwrap().rule, "my_rule");
     }
@@ -187,12 +187,16 @@ mod tests {
 Test the entire correction flow:
 
 ```rust
-#[tokio::test]
-async fn test_integration() {
+use thefuck::types::{Command, Settings};
+use thefuck::corrector::Corrector;
+
+#[test]
+fn test_integration() {
     let cmd = Command::new("gti status".to_string());
-    let mut corrector = Corrector::new(cmd).await.unwrap();
-    
-    let corrections = corrector.find_corrections().await.unwrap();
+    let settings = Settings::default();
+    let corrector = Corrector::new(cmd, settings);
+
+    let corrections = corrector.find_corrections();
     assert!(!corrections.is_empty());
     assert_eq!(corrections[0].rule, "git_command");
 }
@@ -272,40 +276,25 @@ thefuck/
 │   │   └── ...
 │   ├── io.rs                # Input/output handling
 │   ├── history.rs           # Command history
-│   ├── system.rs            # System integration
-│   └── shells.rs            # Shell detection
+│   └── util.rs              # Shared utilities (Levenshtein, constants)
 ├── tests/                   # Test files
 ├── Cargo.toml              # Project configuration
-├── ruff.toml               # Linting configuration
-├── .pre-commit-config.yaml # Pre-commit hooks
 └── README.md               # Project documentation
 ```
 
 ## Debugging
 
-### Debug Mode
-
-Enable debug logging:
-
-```rust
-#[tokio::main]
-async fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .init();
-
-    // Rest of your code
-}
-```
-
 ### Debug Commands
 
 ```bash
-# Run with debug output
-RUST_LOG=debug cargo run -- gti status
+# Build and run in debug mode
+cargo run -- gti status
 
 # Build debug version
 cargo build
+
+# Run tests with output
+cargo test -- --nocapture
 ```
 
 ## Common Issues
@@ -320,10 +309,10 @@ cargo update
 
 ### Type Errors
 
-For mypy errors:
+Run clippy to catch type and lint issues:
 
 ```bash
-cargo clippy -- -- -D warnings
+cargo clippy -- -D warnings
 ```
 
 ### Build Failures

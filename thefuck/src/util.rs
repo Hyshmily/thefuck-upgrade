@@ -1,30 +1,26 @@
 pub fn levenshtein(s1: &str, s2: &str) -> usize {
-    let s1 = s1.chars().collect::<Vec<_>>();
-    let s2 = s2.chars().collect::<Vec<_>>();
+    let (s1, s2): (Vec<char>, Vec<char>) = if s1.len() < s2.len() {
+        (s1.chars().collect(), s2.chars().collect())
+    } else {
+        (s2.chars().collect(), s1.chars().collect())
+    };
 
-    let mut dp = vec![vec![0; s2.len() + 1]; s1.len() + 1];
+    let mut prev: Vec<usize> = (0..=s2.len()).collect();
+    let mut curr = vec![0; s2.len() + 1];
 
-    for i in 0..=s1.len() {
-        dp[i][0] = i;
-    }
-
-    for j in 0..=s2.len() {
-        dp[0][j] = j;
-    }
-
-    for i in 1..=s1.len() {
-        for j in 1..=s2.len() {
-            if s1[i - 1] == s2[j - 1] {
-                dp[i][j] = dp[i - 1][j - 1];
+    for (i, c1) in s1.iter().enumerate() {
+        curr[0] = i + 1;
+        for (j, c2) in s2.iter().enumerate() {
+            curr[j + 1] = if c1 == c2 {
+                prev[j]
             } else {
-                dp[i][j] = (dp[i - 1][j] + 1)
-                    .min(dp[i][j - 1] + 1)
-                    .min(dp[i - 1][j - 1] + 1);
-            }
+                1 + prev[j].min(prev[j + 1]).min(curr[j])
+            };
         }
+        std::mem::swap(&mut prev, &mut curr);
     }
 
-    dp[s1.len()][s2.len()]
+    prev[s2.len()]
 }
 
 pub fn levenshtein_ratio(s1: &str, s2: &str) -> f64 {
@@ -45,4 +41,3 @@ pub const SIMILARITY_LEGACY: f64 = 0.92;
 pub const SIMILARITY_FORCE: f64 = 0.93;
 pub const SIMILARITY_UPSTREAM: f64 = 0.9;
 pub const SIMILARITY_SUDO: f64 = 0.88;
-pub const SIMILARITY_COMPUTED: f64 = 0.0;

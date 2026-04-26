@@ -15,7 +15,7 @@ pub fn git_typo_rule(command: &Command) -> Option<MatchResult> {
     corrected[0] = replacement.to_string();
 
     Some(MatchResult {
-        rule: "git_command".to_string(),
+        rule: "git_command",
         corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_TYPO,
     })
@@ -39,7 +39,7 @@ pub fn git_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     corrected[1] = replacement.to_string();
 
     Some(MatchResult {
-        rule: "git_subcommand_typo".to_string(),
+        rule: "git_subcommand_typo",
         corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
     })
@@ -56,7 +56,7 @@ pub fn git_push_upstream_rule(command: &Command) -> Option<MatchResult> {
     }
 
     Some(MatchResult {
-        rule: "git_push_upstream".to_string(),
+        rule: "git_push_upstream",
         corrected_command: format!("git push --set-upstream origin {branch}"),
         similarity: util::SIMILARITY_UPSTREAM,
     })
@@ -67,12 +67,12 @@ pub fn git_force_with_lease_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    let force_index = command.parts.iter().position(|part| part == "--force")?;
+    let force_index = command.parts.iter().position(|part| part == "--force" || part == "-f")?;
     let mut corrected = command.parts.clone();
     corrected[force_index] = "--force-with-lease".to_string();
 
     Some(MatchResult {
-        rule: "git_force_with_lease".to_string(),
+        rule: "git_force_with_lease",
         corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_FORCE,
     })
@@ -91,9 +91,9 @@ pub fn git_checkout_to_switch_rule(command: &Command) -> Option<MatchResult> {
         let mut corrected = vec!["git".to_string(), "switch".to_string(), "-c".to_string()];
         corrected.extend(command.parts.iter().skip(3).cloned());
         return Some(MatchResult {
-            rule: "git_checkout_to_switch".to_string(),
+            rule: "git_checkout_to_switch",
             corrected_command: corrected.join(" "),
-            similarity: 0.95,
+            similarity: util::SIMILARITY_BRANCH,
         });
     }
 
@@ -105,7 +105,7 @@ pub fn git_checkout_to_switch_rule(command: &Command) -> Option<MatchResult> {
     corrected.extend(command.parts.iter().skip(2).cloned());
 
     Some(MatchResult {
-        rule: "git_checkout_to_switch".to_string(),
+        rule: "git_checkout_to_switch",
         corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_BRANCH,
     })

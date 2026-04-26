@@ -44,11 +44,3 @@ pub fn wait_for_choice(corrections: &[MatchResult]) -> Result<Option<usize>> {
     Ok(selection)
 }
 
-pub fn should_skip_confirmation() -> bool {
-    std::env::var("THEFUCK_REQUIRE_CONFIRMATION")
-        .map(|value| {
-            let normalized = value.trim().to_ascii_lowercase();
-            matches!(normalized.as_str(), "0" | "false" | "no" | "off")
-        })
-        .unwrap_or(false)
-}
