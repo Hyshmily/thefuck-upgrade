@@ -41,8 +41,7 @@ pub async fn run(options: FixOptions) -> Result<()> {
 
     io::display_corrections(&corrections);
 
-    let should_skip_confirmation =
-        options.yes || !require_confirmation;
+    let should_skip_confirmation = options.yes || !require_confirmation;
     let choice = if should_skip_confirmation {
         Some(0)
     } else {

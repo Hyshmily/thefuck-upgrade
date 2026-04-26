@@ -7,14 +7,30 @@
 
 ## Project Overview
 
-## What's New in 3.33.0
+## What's New in 3.33.1
 
 > [!NOTE]
-> Version 3.33.0 emphasizes modern CLI command migrations while keeping compatibility fallbacks.
+> Version 3.33.1 emphasizes modern CLI command migrations while keeping compatibility fallbacks, and significantly expands rule coverage.
 
 - Added migration suggestions from `git checkout` to `git switch`
 - Added modernization suggestions from `pip` to `uv pip`, while preserving `python -m pip` fallback
 - Added Docker legacy command migration suggestions for `docker images` and `docker ps`
+- **Expanded rule coverage to 18 categories with 40+ rules:**
+  - **Common typos**: `sl→ls`, `gerp→grep`, `mkae→make`, `ehco→echo`, `chomd→chmod`, `vom→vim`, and more
+  - **Node.js**: npm/yarn/pnpm command and subcommand typo corrections
+  - **Rust**: Cargo command and subcommand typo corrections
+  - **Go**: Go toolchain command and subcommand typo corrections
+  - **Pip**: pip subcommand typo corrections
+  - **Homebrew**: brew command and subcommand typo corrections
+  - **APT**: apt/apt-get command and subcommand typo corrections, `apt-get→apt` migration
+  - **systemd**: systemctl command and subcommand typo corrections
+  - **Kubernetes**: kubectl command and subcommand typo corrections
+  - **Terraform**: Terraform command and subcommand typo corrections
+  - **Conda**: Conda command and subcommand typo corrections
+  - **Missing space/wrong hyphen**: `cd..→cd ..`, `git-log→git log`, etc.
+  - Extended sudo detection for `yum`, `make install`, `npm install -g`
+  - Extended git subcommand typos (stash, merge, diff, switch, restore, rebase, cherry-pick)
+  - Extended Docker command and subcommand typos
 - Expanded integration tests for modernization and backward-compatibility behavior
 
 > [!IMPORTANT]
@@ -45,7 +61,22 @@ thefuck-upgrade/
 │   │       ├── mod.rs
 │   │       ├── git.rs
 │   │       ├── python.rs
-│   │       └── cd.rs
+│   │       ├── docker.rs
+│   │       ├── maven.rs
+│   │       ├── cd.rs
+│   │       ├── sudo.rs
+│   │       ├── common.rs
+│   │       ├── npm.rs
+│   │       ├── cargo.rs
+│   │       ├── go.rs
+│   │       ├── pip.rs
+│   │       ├── brew.rs
+│   │       ├── apt.rs
+│   │       ├── systemctl.rs
+│   │       ├── kubectl.rs
+│   │       ├── terraform.rs
+│   │       ├── conda.rs
+│   │       └── missing_space.rs
 │   └── tests/
 │       └── main.rs             # Integration tests
 ├── .github/                    # GitHub configuration
@@ -152,13 +183,20 @@ thefuck-upgrade/
 - Alias generation logic
 - Shell-specific syntax
 - Environment variable handling
-- Installation script generation
 
 #### `firstuse.rs` - First-time Use Setup
 - First-run welcome
 - Configuration initialization
-- Dependency checking
 - User guidance
+
+#### `update.rs` - Update Instructions
+- Platform-specific update guide
+- Cargo, Homebrew, APT, Pacman instructions
+
+#### `delete.rs` - Uninstall / Cleanup
+- History and data directory removal
+- Shell alias removal instructions
+- Platform-specific uninstall guide
 
 ### 3. Rule System (`rules/`)
 
@@ -169,25 +207,83 @@ thefuck-upgrade/
 - Rule trait definitions
 - Rule registry
 - Rule loading
-- Trait implementations
+- 18 categories, 40+ registered rules
+
+#### `common.rs` - Common Command Typos
+- `sl→ls`, `gerp→grep`, `mkae→make`, `ehco→echo`, `chomd→chmod`, `vom→vim`, and more
 
 #### `git.rs` - Git Rules
 - Git command correction
 - Branch operation correction
-- Commit message correction
-- Remote operation handling
+- Subcommand typo correction
+- Push/pull workflow fixes
 
 #### `python.rs` - Python Rules
 - Python command correction
-- Package manager support
-- Virtual environment handling
-- Module import correction
+- pip to uv migration
+- pip to python -m pip fallback
+- pip subcommand typo correction
+
+#### `docker.rs` - Docker Rules
+- Docker command typo correction
+- docker-compose v2 migration
+- Legacy management command migration
+- Docker subcommand typo correction
+
+#### `npm.rs` - Node.js Rules
+- npm/yarn/pnpm command typo correction
+- npm/yarn subcommand typo correction
+
+#### `cargo.rs` - Cargo Rules
+- Cargo command typo correction
+- Cargo subcommand typo correction
+
+#### `go.rs` - Go Rules
+- Go command typo correction
+- Go subcommand typo correction
+
+#### `brew.rs` - Homebrew Rules
+- brew command typo correction
+- brew subcommand typo correction
+
+#### `apt.rs` - APT Rules
+- apt/apt-get command typo correction
+- apt/apt-get subcommand typo correction
+- `apt-get→apt` migration suggestion
+
+#### `systemctl.rs` - systemd Rules
+- systemctl command typo correction
+- systemctl subcommand typo correction
+
+#### `kubectl.rs` - Kubernetes Rules
+- kubectl command typo correction
+- kubectl subcommand typo correction
+
+#### `terraform.rs` - Terraform Rules
+- terraform command typo correction
+- terraform subcommand typo correction
+
+#### `conda.rs` - Conda Rules
+- Conda command typo correction
+- Conda subcommand typo correction
+
+#### `maven.rs` - Maven Rules
+- Maven command typo correction
+- Maven subcommand typo correction
+
+#### `pip.rs` - Pip Rules
+- pip command typo correction
 
 #### `cd.rs` - CD Command Correction
 - Path spelling correction
-- Directory jump optimization
-- Auto-completion
-- Historical directory navigation
+
+#### `sudo.rs` - Sudo Rules
+- Missing sudo detection for package managers
+- Extended detection for `make install`, `npm install -g`
+
+#### `missing_space.rs` - Missing Space / Wrong Hyphen
+- `cd..→cd ..`
+- `git-log→git log`, `<cmd>-<subcmd>→<cmd> <subcmd>`
 
 ## Build System
 

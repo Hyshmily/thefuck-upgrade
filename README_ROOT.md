@@ -2,14 +2,14 @@
 
 [![中文](https://img.shields.io/badge/中文-简体-green.svg)](README_CN.md) [![English](https://img.shields.io/badge/English-blue.svg)](README_EN.md)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-3.33.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-3.33.1-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
 > [!NOTE]
 > This project is the Rust rewrite of the classic command-line error correction tool. If you are new here, start with the language-specific README.
 
 ## Quick Start
 
-## What's New in 3.33.0
+## What's New in 3.33.1
 
 > [!NOTE]
 > This release expands command modernization rules and deprecates older command styles through suggestions.
@@ -39,6 +39,19 @@ sudo pacman -S thefuck    # Arch
 ➜ fuck
 git status [enter/↑/↓/ctrl+c]
 * main
+```
+
+### Management Commands
+
+```bash
+# Print shell alias for integration
+thefuck --alias
+
+# Update guide for your platform
+thefuck update
+
+# Remove data and get uninstall instructions
+thefuck delete
 ```
 
 > [!TIP]

@@ -32,6 +32,15 @@ pub fn git_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
         "brnch" | "branck" => Some("branch"),
         "pul" => Some("pull"),
         "psuh" | "pus" => Some("push"),
+        "stahs" | "stsh" => Some("stash"),
+        "mrege" | "merg" => Some("merge"),
+        "dff" | "dif" => Some("diff"),
+        "lg" => Some("log"),
+        "swtich" => Some("switch"),
+        "restroe" => Some("restore"),
+        "rebaes" => Some("rebase"),
+        "cherr-pick" | "cherypick" => Some("cherry-pick"),
+        "fet ch" => Some("fetch"),
         _ => None,
     }?;
 
@@ -67,7 +76,10 @@ pub fn git_force_with_lease_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    let force_index = command.parts.iter().position(|part| part == "--force" || part == "-f")?;
+    let force_index = command
+        .parts
+        .iter()
+        .position(|part| part == "--force" || part == "-f")?;
     let mut corrected = command.parts.clone();
     corrected[force_index] = "--force-with-lease".to_string();
 

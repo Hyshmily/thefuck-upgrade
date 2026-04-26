@@ -1,6 +1,6 @@
 [package]
 name = "thefuck"
-version = "3.33.0"
+version = "3.33.1"
 edition = "2021"
 authors = ["Nikita Sivakov <nsk@me.com>"]
 description = "Magnificent app which corrects your previous console command"

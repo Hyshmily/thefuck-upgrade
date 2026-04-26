@@ -22,11 +22,9 @@ impl Corrector {
     }
 
     pub fn find_corrections(&self) -> Vec<MatchResult> {
-        let mut corrections = self.registry.match_command(
-            &self.command,
-            &self.rules,
-            &self.exclude_rules,
-        );
+        let mut corrections =
+            self.registry
+                .match_command(&self.command, &self.rules, &self.exclude_rules);
 
         for correction in &mut corrections {
             if correction.similarity <= 0.0 {

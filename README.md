@@ -1,4 +1,4 @@
-# The Fuck [![Version](https://img.shields.io/badge/version-3.33.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
+# The Fuck [![Version](https://img.shields.io/badge/version-3.33.1-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HyShmily/thefuck-upgrade/blob/main/LICENSE)
 
@@ -22,10 +22,10 @@ The Fuck is a **Rust rewrite** of the classic command-line error correction tool
 - 🔌 **Highly Extensible**: Clear modular design, easy to add new rules
 - 💪 **Modern Tool Support**: Supports `uv`, `pnpm`, `docker compose` and more
 
-## 🆕 What's New in 3.33.0
+## 🆕 What's New in 3.33.1
 
 > [!IMPORTANT]
-> 3.33.0 focuses on modern command migrations and safer correction defaults.
+> 3.33.1 focuses on modern command migrations, safer correction defaults, and comprehensive rule coverage.
 
 - Added `git checkout` migration suggestions to `git switch` / `git switch -c`
 - Added `pip` modernization suggestions to `uv pip` while preserving `python -m pip` fallback
@@ -33,6 +33,22 @@ The Fuck is a **Rust rewrite** of the classic command-line error correction tool
 	- `docker-compose ...` -> `docker compose ...`
 	- `docker images ...` -> `docker image ls ...`
 	- `docker ps ...` -> `docker container ls ...`
+- **Expanded rule coverage to 18 categories with 40+ rules:**
+	- **Common typos**: `sl→ls`, `gerp→grep`, `mkae→make`, `ehco→echo`, `chomd→chmod`, `vom→vim`, and more
+	- **Node.js**: npm/yarn/pnpm command and subcommand typo corrections
+	- **Rust**: Cargo command and subcommand typo corrections
+	- **Go**: Go toolchain command and subcommand typo corrections
+	- **Pip**: pip subcommand typo corrections
+	- **Homebrew**: brew command and subcommand typo corrections
+	- **APT**: apt/apt-get command and subcommand typo corrections, `apt-get→apt` migration
+	- **systemd**: systemctl command and subcommand typo corrections
+	- **Kubernetes**: kubectl command and subcommand typo corrections
+	- **Terraform**: Terraform command and subcommand typo corrections
+	- **Conda**: Conda command and subcommand typo corrections
+	- **Missing space/wrong hyphen**: `cd..→cd ..`, `git-log→git log`, etc.
+	- Extended sudo detection for `yum`, `make install`, `npm install -g`
+	- Extended git subcommand typos (stash, merge, diff, switch, restore, rebase, cherry-pick)
+	- Extended Docker command and subcommand typos
 - Expanded integration tests to cover modernization rules and compatibility behavior
 
 ## 📖 Documentation
@@ -77,6 +93,19 @@ cargo install --path thefuck
 ➜ fuck
 git status [enter/↑/↓/ctrl+c]
 * main
+```
+
+### Management Commands
+
+```bash
+# Print shell alias for shell integration
+thefuck --alias
+
+# Update guide for your platform
+thefuck update
+
+# Remove data and get uninstall instructions
+thefuck delete
 ```
 
 ## 📋 Project Info

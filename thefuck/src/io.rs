@@ -43,4 +43,3 @@ pub fn wait_for_choice(corrections: &[MatchResult]) -> Result<Option<usize>> {
 
     Ok(selection)
 }
-
