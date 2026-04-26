@@ -16,6 +16,8 @@ pub fn common_typo_rule(command: &Command) -> Option<MatchResult> {
         "clera" | "claer" => Some("clear"),
         "hsitory" => Some("history"),
         "exir" | "eixt" => Some("exit"),
+        "iex" => Some("eval"),
+        "evla" | "veal" => Some("eval"),
         "tuch" | "touh" => Some("touch"),
         "mrdir" => Some("mkdir"),
         "vom" | "vmi" | "ivm" => Some("vim"),

@@ -479,6 +479,9 @@ fn test_common_typo_variants() {
         ("cta", "cat"),
         ("mvv", "mv"),
         ("rmr", "rm"),
+        ("iex", "eval"),
+        ("veal", "eval"),
+        ("evla", "eval"),
     ];
     for (typo, expected) in &cases {
         let command = Command::new(format!("{} arg", typo));
