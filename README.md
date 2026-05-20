@@ -1,4 +1,4 @@
-# The Fuck [![Version](https://img.shields.io/badge/version-3.33.1-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
+# The Fuck [![Version](https://img.shields.io/badge/version-3.34.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HyShmily/thefuck-upgrade/blob/main/LICENSE)
 
@@ -17,39 +17,20 @@ The Fuck is a **Rust rewrite** of the classic command-line error correction tool
 - 🔧 **Modern Toolchain**: Uses Cargo, Rust 2021 edition, async programming
 - 🛡️ **Memory Safety**: Rust's ownership model guarantees memory safety
 - 🌐 **Cross-Platform**: Perfect support for Windows/macOS/Linux
-- 🚀 **Async Processing**: Supports concurrent command execution for better response
+- 🚀 **Optimized Matching**: Lazy string allocation across all 68 rules, shared pattern utilities
 - 🎯 **Smart Matching**: Optimized Levenshtein algorithm for more accurate corrections
 - 🔌 **Highly Extensible**: Clear modular design, easy to add new rules
 - 💪 **Modern Tool Support**: Supports `uv`, `pnpm`, `docker compose` and more
 
-## 🆕 What's New in 3.33.1
+## 🆕 What's New in 3.34.0
 
 > [!IMPORTANT]
-> 3.33.1 focuses on modern command migrations, safer correction defaults, and comprehensive rule coverage.
+> 3.34.0 focuses on performance optimization, code quality improvements, and comprehensive test coverage.
 
-- Added `git checkout` migration suggestions to `git switch` / `git switch -c`
-- Added `pip` modernization suggestions to `uv pip` while preserving `python -m pip` fallback
-- Added Docker legacy command migration suggestions:
-	- `docker-compose ...` -> `docker compose ...`
-	- `docker images ...` -> `docker image ls ...`
-	- `docker ps ...` -> `docker container ls ...`
-- **Expanded rule coverage to 18 categories with 40+ rules:**
-	- **Common typos**: `sl→ls`, `gerp→grep`, `mkae→make`, `ehco→echo`, `chomd→chmod`, `vom→vim`, and more
-	- **Node.js**: npm/yarn/pnpm command and subcommand typo corrections
-	- **Rust**: Cargo command and subcommand typo corrections
-	- **Go**: Go toolchain command and subcommand typo corrections
-	- **Pip**: pip subcommand typo corrections
-	- **Homebrew**: brew command and subcommand typo corrections
-	- **APT**: apt/apt-get command and subcommand typo corrections, `apt-get→apt` migration
-	- **systemd**: systemctl command and subcommand typo corrections
-	- **Kubernetes**: kubectl command and subcommand typo corrections
-	- **Terraform**: Terraform command and subcommand typo corrections
-	- **Conda**: Conda command and subcommand typo corrections
-	- **Missing space/wrong hyphen**: `cd..→cd ..`, `git-log→git log`, etc.
-	- Extended sudo detection for `yum`, `make install`, `npm install -g`
-	- Extended git subcommand typos (stash, merge, diff, switch, restore, rebase, cherry-pick)
-	- Extended Docker command and subcommand typos
-- Expanded integration tests to cover modernization rules and compatibility behavior
+- ⚡ **Performance**: Lazy parts cloning across all 31 rule files via new `rules/helpers.rs` — eliminates intermediate `Vec<String>` allocations when building corrected commands
+- 🧹 **Code quality**: Removed dead code from `pip.rs`, fixed pacman self-referencing typo bug, made `history::add_command` properly synchronous
+- ✅ **Test coverage**: Added 26 new tests, covering all 13 previously untested rule files (aws, az, bun, choco, dnf, gradle, grep, pacman, pip, pnpm, uv, winget) — now **113 tests total**
+- 📦 **Refined rule system**: 31 module files, 68 registered rules with shared helper utilities
 
 ## 📖 Documentation
 

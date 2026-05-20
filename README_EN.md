@@ -7,31 +7,15 @@
 
 ## Project Overview
 
-## What's New in 3.33.1
+## What's New in 3.34.0
 
 > [!NOTE]
-> Version 3.33.1 emphasizes modern CLI command migrations while keeping compatibility fallbacks, and significantly expands rule coverage.
+> Version 3.34.0 focuses on performance optimization, code quality improvements, and comprehensive test coverage.
 
-- Added migration suggestions from `git checkout` to `git switch`
-- Added modernization suggestions from `pip` to `uv pip`, while preserving `python -m pip` fallback
-- Added Docker legacy command migration suggestions for `docker images` and `docker ps`
-- **Expanded rule coverage to 18 categories with 40+ rules:**
-  - **Common typos**: `sl→ls`, `gerp→grep`, `mkae→make`, `ehco→echo`, `chomd→chmod`, `vom→vim`, and more
-  - **Node.js**: npm/yarn/pnpm command and subcommand typo corrections
-  - **Rust**: Cargo command and subcommand typo corrections
-  - **Go**: Go toolchain command and subcommand typo corrections
-  - **Pip**: pip subcommand typo corrections
-  - **Homebrew**: brew command and subcommand typo corrections
-  - **APT**: apt/apt-get command and subcommand typo corrections, `apt-get→apt` migration
-  - **systemd**: systemctl command and subcommand typo corrections
-  - **Kubernetes**: kubectl command and subcommand typo corrections
-  - **Terraform**: Terraform command and subcommand typo corrections
-  - **Conda**: Conda command and subcommand typo corrections
-  - **Missing space/wrong hyphen**: `cd..→cd ..`, `git-log→git log`, etc.
-  - Extended sudo detection for `yum`, `make install`, `npm install -g`
-  - Extended git subcommand typos (stash, merge, diff, switch, restore, rebase, cherry-pick)
-  - Extended Docker command and subcommand typos
-- Expanded integration tests for modernization and backward-compatibility behavior
+- ⚡ **Performance**: Created `rules/helpers.rs` with `replace_first`, `replace_part`, `prepend` utilities. All 31 rule files now use lazy parts cloning, eliminating intermediate `Vec<String>` allocations.
+- 🧹 **Code cleanup**: Removed dead code duplication in `pip.rs` (unused `PIP_SUBCOMMAND_TYPOS` and `pip_subcommand_typo_rule`), fixed pacman self-referencing typo, made `history::add_command` synchronous.
+- ✅ **Test coverage**: Added 26 new tests covering all 13 previously untested rule files — now **113 tests total**.
+- 📦 **Rule system**: 31 module files, **68 registered rules** with shared helper utilities.
 
 > [!IMPORTANT]
 > The following directory structure shows the complete layout of the project:
@@ -40,7 +24,6 @@
 thefuck-upgrade/
 ├── thefuck/                    # Rust core package
 │   ├── Cargo.toml              # Rust project configuration
-│   ├── build.rs                # Build script (rule file scanning)
 │   ├── src/
 │   │   ├── lib.rs              # Library entry point (shared by tests and binary)
 │   │   ├── main.rs             # Thefuck main binary entry
@@ -57,28 +40,16 @@ thefuck-upgrade/
 │   │   │   ├── alias.rs
 │   │   │   ├── fix_command.rs
 │   │   │   └── firstuse.rs
+│   │   ├── util.rs             # Shared utilities (levenshtein, SIMILARITY constants)
 │   │   └── rules/
-│   │       ├── mod.rs
+│   │       ├── mod.rs          # Rule registry (68 registered rules)
+│   │       ├── helpers.rs      # Shared rule helpers (replace_first, prepend, etc.)
+│   │       ├── cd.rs
 │   │       ├── git.rs
 │   │       ├── python.rs
-│   │       ├── docker.rs
-│   │       ├── maven.rs
-│   │       ├── cd.rs
-│   │       ├── sudo.rs
-│   │       ├── common.rs
-│   │       ├── npm.rs
-│   │       ├── cargo.rs
-│   │       ├── go.rs
-│   │       ├── pip.rs
-│   │       ├── brew.rs
-│   │       ├── apt.rs
-│   │       ├── systemctl.rs
-│   │       ├── kubectl.rs
-│   │       ├── terraform.rs
-│   │       ├── conda.rs
-│   │       └── missing_space.rs
+│   │       └── ... (26 more rule modules)
 │   └── tests/
-│       └── main.rs             # Integration tests
+│       └── main.rs             # Integration tests (113 tests)
 ├── .github/                    # GitHub configuration
 │   └── workflows/              # CI/CD workflows
 │       └── ci.yml             # Continuous integration config
@@ -207,7 +178,7 @@ thefuck-upgrade/
 - Rule trait definitions
 - Rule registry
 - Rule loading
-- 18 categories, 40+ registered rules
+- 20+ tool categories, 68 registered rules across 31 modules
 
 #### `common.rs` - Common Command Typos
 - `sl→ls`, `gerp→grep`, `mkae→make`, `ehco→echo`, `chomd→chmod`, `vom→vim`, and more
@@ -355,7 +326,7 @@ thefuck-upgrade/
 4. Add test cases
 
 ### Custom Build
-1. Modify `build.rs`
+1. Build with `cargo build` (debug) or `cargo build --release`
 2. Add new build targets
 3. Update Makefile
 4. Configure release process
