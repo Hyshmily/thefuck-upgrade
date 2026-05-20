@@ -1,3 +1,4 @@
+use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -63,12 +64,9 @@ pub fn mvn_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => None,
     }?;
 
-    let mut corrected = command.parts.clone();
-    corrected[0] = replacement.to_string();
-
     Some(MatchResult {
         rule: "mvn_command",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_first(&command.parts, replacement),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -84,12 +82,9 @@ pub fn mvn_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     }
 
     let (corrected_phase, similarity) = find_match(arg)?;
-    let mut corrected = command.parts.clone();
-    corrected[1] = corrected_phase;
-
     Some(MatchResult {
         rule: "mvn_subcommand_typo",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_part(&command.parts, 1, &corrected_phase),
         similarity,
     })
 }
@@ -106,11 +101,9 @@ pub fn mvn_multiphase_typo_rule(command: &Command) -> Option<MatchResult> {
         }
 
         if let Some((corrected_phase, similarity)) = find_match(arg) {
-            let mut corrected = command.parts.clone();
-            corrected[i] = corrected_phase;
             return Some(MatchResult {
                 rule: "mvn_multiphase_typo",
-                corrected_command: corrected.join(" "),
+                corrected_command: helpers::replace_part(&command.parts, i, &corrected_phase),
                 similarity,
             });
         }

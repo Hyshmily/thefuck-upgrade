@@ -1,3 +1,4 @@
+use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -93,12 +94,9 @@ pub fn docker_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => return None,
     };
 
-    let mut corrected = command.parts.clone();
-    corrected[0] = replacement.to_string();
-
     Some(MatchResult {
         rule: "docker_command",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_first(&command.parts, replacement),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -108,12 +106,9 @@ pub fn docker_compose_v2_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    let mut corrected = vec!["docker".to_string(), "compose".to_string()];
-    corrected.extend(command.parts.iter().skip(1).cloned());
-
     Some(MatchResult {
         rule: "docker_compose_v2",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::prepend(&command.parts[1..], &["docker", "compose"]),
         similarity: util::SIMILARITY_MIGRATION,
     })
 }
@@ -123,21 +118,15 @@ pub fn docker_legacy_management_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
-    let mut corrected = match command.parts[1].as_str() {
-        "images" => vec!["docker".to_string(), "image".to_string(), "ls".to_string()],
-        "ps" => vec![
-            "docker".to_string(),
-            "container".to_string(),
-            "ls".to_string(),
-        ],
+    let corrected_command = match command.parts[1].as_str() {
+        "images" => helpers::prepend(&command.parts[2..], &["docker", "image", "ls"]),
+        "ps" => helpers::prepend(&command.parts[2..], &["docker", "container", "ls"]),
         _ => return None,
     };
 
-    corrected.extend(command.parts.iter().skip(2).cloned());
-
     Some(MatchResult {
         rule: "docker_legacy_management",
-        corrected_command: corrected.join(" "),
+        corrected_command,
         similarity: util::SIMILARITY_LEGACY,
     })
 }
@@ -153,12 +142,9 @@ pub fn docker_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     }
 
     let (corrected_sub, similarity) = find_match(arg)?;
-    let mut corrected = command.parts.clone();
-    corrected[1] = corrected_sub;
-
     Some(MatchResult {
         rule: "docker_subcommand_typo",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_part(&command.parts, 1, &corrected_sub),
         similarity,
     })
 }
