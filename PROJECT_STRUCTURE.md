@@ -16,7 +16,6 @@
 thefuck-upgrade/
 ├── thefuck/                    # Rust core package
 │   ├── Cargo.toml              # Rust project configuration
-│   ├── build.rs                # Build script (rule file scanning)
 │   ├── src/
 │   │   ├── lib.rs              # Library entry point (shared by tests and binary)
 │   │   ├── main.rs             # Thefuck main binary entry
@@ -33,13 +32,16 @@ thefuck-upgrade/
 │   │   │   ├── alias.rs
 │   │   │   ├── fix_command.rs
 │   │   │   └── firstuse.rs
+│   │   ├── util.rs             # Shared utilities (levenshtein, etc.)
 │   │   └── rules/
-│   │       ├── mod.rs
+│   │       ├── mod.rs          # Rule registry (68 registered rules)
+│   │       ├── helpers.rs      # Shared rule helpers (replace_first, prepend, etc.)
+│   │       ├── cd.rs
 │   │       ├── git.rs
 │   │       ├── python.rs
-│   │       └── cd.rs
+│   │       └── ... (26 more rule modules)
 │   └── tests/
-│       └── main.rs             # Integration tests
+│       └── main.rs             # Integration tests (113 tests)
 ├── .github/                    # GitHub configuration
 │   └── workflows/              # CI/CD workflows
 │       └── ci.yml             # Continuous integration config
@@ -99,12 +101,6 @@ thefuck-upgrade/
 - Platform-specific features
 - Process management
 
-#### `shells.rs` - Shell Support
-- Shell type detection (Bash/Zsh/Fish/PowerShell)
-- Shell-specific features
-- Platform adaptation
-- Path handling
-
 #### `history.rs` - Command History
 - Command history management
 - Pattern matching
@@ -116,18 +112,6 @@ thefuck-upgrade/
 - Output formatting
 - User interaction
 - Error message display
-
-#### `output_readers.rs` - Output Reading
-- Command output parsing
-- Error message extraction
-- Pattern matching
-- Data extraction utilities
-
-#### `exit_codes.rs` - Exit Code Definitions
-- Standard exit codes
-- Error type codes
-- Success status codes
-- Custom exit codes
 
 ### 2. Entry Modules (`entrypoints/`)
 
@@ -152,33 +136,45 @@ thefuck-upgrade/
 - Dependency checking
 - User guidance
 
-### 3. Rule System (`rules/`)
+### 3. Shared Utilities (`util.rs`)
+
+> [!TIP]
+> Utility functions shared across the codebase:
+
+- `levenshtein()` / `levenshtein_ratio()` — string distance calculation for correction matching
+- `SIMILARITY_*` constants — named thresholds (SIMILARITY_TYPO, SIMILARITY_SUBCOMMAND_TYPO, etc.)
+- Helper constants used by corrector and rule modules
+
+### 4. Rule System (`rules/`)
 
 > [!WARNING]
-> The rule system is responsible for correcting commands. Adding new rules requires implementing the rule trait.
+> The rule system is responsible for correcting commands. Currently contains **31 rule modules** with **68 registered rules** across 20+ tool categories.
 
 #### `mod.rs` - Rule Registration
-- Rule trait definitions
-- Rule registry
-- Rule loading
-- Trait implementations
+- RuleRegistry with `new()` function
+- Static function pointer registration for all 68 rules
+- Loop-based rule iteration with name metadata
+
+#### `helpers.rs` - Shared Rule Helpers
+- `replace_first(&str, &str, &str) -> String` — replace first occurrence in a string
+- `replace_part(&[&str], &str, &[&str]) -> String` — replace one part with multiple parts
+- `prepend(&str, &str) -> String` — prepend a prefix to a string
+- All utilities return `String` directly, avoiding intermediate `Vec<String>` allocations
 
 #### `git.rs` - Git Rules
-- Git command correction
-- Branch operation correction
-- Commit message correction
-- Remote operation handling
+- Git command typo correction (e.g., `gti status` → `git status`)
+- Git subcommand typo correction (e.g., `git stauts` → `git status`)
+- `git checkout` → `git switch` / `git switch -c` migration suggestions
+- `git push --force` → `git push --force-with-lease` safety migration
 
 #### `python.rs` - Python Rules
-- Python command correction
-- Package manager support
-- Virtual environment handling
-- Module import correction
+- Python command typo correction (e.g., `pyrhon` → `python`)
+- `pip` → `uv pip` modernization suggestion
+- `pip` → `python -m pip` compatibility fallback
 
 #### `cd.rs` - CD Command Correction
-- Path spelling correction
+- Path spelling correction using Levenshtein distance
 - Directory jump optimization
-- Auto-completion
 - Historical directory navigation
 
 ## 🏗️ Build System
@@ -189,11 +185,10 @@ thefuck-upgrade/
 - Build configuration
 - Feature flags
 
-### build.rs - Build Script
-- Rule compilation
-- Resource processing
-- Build-time checks
-- Custom build steps
+### Cargo.toml - Rust Project Configuration
+- Project metadata, dependencies, feature flags
+- Binary definitions (`thefuck`, `thefuck_firstuse`)
+- Library target shared by tests and binaries
 
 ### Makefile - Build Automation
 - Development tasks
@@ -304,7 +299,6 @@ thefuck-upgrade/
 thefuck-upgrade/
 ├── thefuck/                    # Rust 核心包
 │   ├── Cargo.toml              # Rust 项目配置
-│   ├── build.rs                # 构建脚本（规则文件扫描）
 │   ├── src/
 │   │   ├── lib.rs              # 库入口（供 tests 和二进制复用）
 │   │   ├── main.rs             # thefuck 主二进制入口
@@ -321,13 +315,16 @@ thefuck-upgrade/
 │   │   │   ├── alias.rs
 │   │   │   ├── fix_command.rs
 │   │   │   └── firstuse.rs
+│   │   ├── util.rs             # 共享工具（levenshtein 等）
 │   │   └── rules/
-│   │       ├── mod.rs
+│   │       ├── mod.rs          # 规则注册表（68 条注册规则）
+│   │       ├── helpers.rs      # 共享规则辅助函数
+│   │       ├── cd.rs
 │   │       ├── git.rs
 │   │       ├── python.rs
-│   │       └── cd.rs
+│   │       └── ...（26 个更多规则模块）
 │   └── tests/
-│       └── main.rs             # 集成测试
+│       └── main.rs             # 集成测试（113 个测试）
 ├── .github/                    # GitHub 配置
 │   └── workflows/              # CI/CD 工作流
 │       └── ci.yml             # 持续集成配置
@@ -387,12 +384,6 @@ thefuck-upgrade/
 - 平台特定功能
 - 进程管理
 
-##### `shells.rs` - Shell 支持
-- Shell 类型检测（Bash/Zsh/Fish/PowerShell）
-- Shell 特定功能
-- 平台适配
-- 路径处理
-
 ##### `history.rs` - 命令历史
 - 历史命令管理
 - 模式匹配
@@ -404,18 +395,6 @@ thefuck-upgrade/
 - 输出格式化
 - 用户交互
 - 错误信息显示
-
-##### `output_readers.rs` - 输出读取
-- 命令输出解析
-- 错误信息提取
-- 模式匹配
-- 数据提取工具
-
-##### `exit_codes.rs` - 退出码定义
-- 标准退出码
-- 错误类型码
-- 成功状态码
-- 自定义退出码
 
 #### 2. 入口模块 (`entrypoints/`)
 
@@ -440,48 +419,48 @@ thefuck-upgrade/
 - 检查依赖
 - 用户引导
 
-#### 3. 规则系统 (`rules/`)
+#### 3. 共享工具 (`util.rs`)
+
+> [!TIP]
+> 跨代码库共享的工具函数：
+
+- `levenshtein()` / `levenshtein_ratio()` — 字符串距离计算
+- `SIMILARITY_*` 常量 — 命名阈值常量
+- corrector 和规则模块使用的辅助常量
+
+#### 4. 规则系统 (`rules/`)
 
 > [!WARNING]
-> 规则系统负责纠正命令。添加新规则需要实现规则特征。
+> 规则系统负责纠正命令。目前包含 **31 个规则模块**、**68 条注册规则**，覆盖 20+ 工具类别。
 
 ##### `mod.rs` - 规则注册
-- 规则特征定义
-- 规则注册表
-- 规则加载
-- 特征实现
+- `RuleRegistry` 和 `new()` 函数
+- 68 条规则的静态函数指针注册
+- 带名称元数据的循环迭代
+
+##### `helpers.rs` - 共享规则辅助函数
+- `replace_first(&str, &str, &str) -> String` — 替换字符串中第一个匹配
+- `replace_part(&[&str], &str, &[&str]) -> String` — 替换一部分为多个部分
+- `prepend(&str, &str) -> String` — 在字符串前添加前缀
+- 所有函数直接返回 `String`，避免中间 `Vec<String>` 分配
 
 ##### `git.rs` - Git 规则
-- Git 命令纠错
-- 分支操作纠正
-- 提交信息修正
-- 远程操作处理
+- Git 命令拼写纠错（如 `gti status` → `git status`）
+- Git 子命令拼写纠错（如 `git stauts` → `git status`）
+- `git checkout` → `git switch` / `git switch -c` 迁移建议
+- `git push --force` → `git push --force-with-lease` 安全迁移
 
 ##### `python.rs` - Python 规则
-- Python 命令纠正
-- 包管理器支持
-- 虚拟环境处理
-- 模块导入修正
+- Python 命令拼写纠错（如 `pyrhon` → `python`）
+- `pip` → `uv pip` 现代化建议
+- `pip` → `python -m pip` 兼容性兜底
 
 ##### `cd.rs` - CD 命令纠正
-- 路径拼写修正
+- 路径拼写修正（基于 Levenshtein 距离）
 - 目录跳转优化
-- 自动补全
 - 历史目录导航
 
 ### 🏗️ 构建系统
-
-#### Cargo.toml - Rust 项目配置
-- 项目元数据
-- 依赖声明
-- 构建配置
-- 特性标志
-
-#### build.rs - 构建脚本
-- 规则编译
-- 资源处理
-- 构建时检查
-- 自定义构建步骤
 
 #### Makefile - 构建自动化
 - 开发任务

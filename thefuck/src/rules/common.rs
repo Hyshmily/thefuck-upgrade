@@ -1,3 +1,4 @@
+use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -30,12 +31,9 @@ pub fn common_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => None,
     }?;
 
-    let mut corrected = command.parts.clone();
-    corrected[0] = replacement.to_string();
-
     Some(MatchResult {
         rule: "common_typo",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_first(&command.parts, replacement),
         similarity: util::SIMILARITY_TYPO,
     })
 }

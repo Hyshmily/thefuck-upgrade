@@ -1,3 +1,4 @@
+use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -69,12 +70,9 @@ pub fn yarn_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => return None,
     };
 
-    let mut corrected = command.parts.clone();
-    corrected[0] = replacement.to_string();
-
     Some(MatchResult {
         rule: "yarn_command",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_first(&command.parts, replacement),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -90,12 +88,9 @@ pub fn yarn_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     }
 
     let (corrected_sub, similarity) = find_match(arg)?;
-    let mut corrected = command.parts.clone();
-    corrected[1] = corrected_sub;
-
     Some(MatchResult {
         rule: "yarn_subcommand_typo",
-        corrected_command: corrected.join(" "),
+        corrected_command: helpers::replace_part(&command.parts, 1, &corrected_sub),
         similarity,
     })
 }

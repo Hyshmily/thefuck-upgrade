@@ -1142,6 +1142,446 @@ fn test_docker_subcommand_typo_variants() {
     }
 }
 
+// -- AWS CLI rules --
+
+#[test]
+fn test_aws_typo_rule() {
+    let cases = ["asw", "awss"];
+    for typo in &cases {
+        let command = Command::new(format!("{} s3 ls", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches.iter().any(|m| m.corrected_command == "aws s3 ls"),
+            "aws typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_aws_service_typo_rule() {
+    let cases = [
+        ("s3s", "s3"),
+        ("ec22", "ec2"),
+        ("ecss", "ecs"),
+        ("lambd", "lambda"),
+    ];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("aws {} ls", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("aws {} ls", expected)),
+            "aws service typo {typo} -> {expected} failed"
+        );
+    }
+}
+
+#[test]
+fn test_aws_service_typo_no_false_positive() {
+    let command = Command::new("aws s3 ls".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+    let matches = corrector.find_corrections();
+    assert!(!matches.iter().any(|m| m.corrected_command != "aws s3 ls"));
+}
+
+// -- Azure CLI rules --
+
+#[test]
+fn test_az_typo_rule() {
+    let cases = ["za", "azz"];
+    for typo in &cases {
+        let command = Command::new(format!("{} login", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches.iter().any(|m| m.corrected_command == "az login"),
+            "az typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_az_subcommand_typo_rule() {
+    let cases = [("lgoin", "login"), ("gropu", "group"), ("ask", "aks")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("az {} --help", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("az {} --help", expected)),
+            "az subcommand typo {typo} -> {expected} failed"
+        );
+    }
+}
+
+// -- Bun rules --
+
+#[test]
+fn test_bun_typo_rule() {
+    let cases = ["bnu", "bum"];
+    for typo in &cases {
+        let command = Command::new(format!("{} install", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches.iter().any(|m| m.corrected_command == "bun install"),
+            "bun typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_bun_subcommand_typo_rule() {
+    let cases = [("isntall", "install"), ("buid", "build"), ("rnu", "run")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("bun {} pkg", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("bun {} pkg", expected)),
+            "bun subcommand typo {typo} failed"
+        );
+    }
+}
+
+// -- Chocolatey rules --
+
+#[test]
+fn test_choco_typo_rule() {
+    let cases = ["choc", "chco"];
+    for typo in &cases {
+        let command = Command::new(format!("{} install firefox", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == "choco install firefox"),
+            "choco typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_choco_subcommand_typo_rule() {
+    let cases = [
+        ("isntall", "install"),
+        ("upgarde", "upgrade"),
+        ("serch", "search"),
+    ];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("choco {} pkg", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("choco {} pkg", expected)),
+            "choco subcommand typo {typo} failed"
+        );
+    }
+}
+
+// -- DNF rules --
+
+#[test]
+fn test_dnf_typo_rule() {
+    let cases = ["dn", "dnff"];
+    for typo in &cases {
+        let command = Command::new(format!("{} install vim", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == "dnf install vim"),
+            "dnf typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_dnf_subcommand_typo_rule() {
+    let cases = [
+        ("isntall", "install"),
+        ("udpate", "update"),
+        ("histroy", "history"),
+    ];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("dnf {} pkg", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("dnf {} pkg", expected)),
+            "dnf subcommand typo {typo} failed"
+        );
+    }
+}
+
+// -- Gradle rules --
+
+#[test]
+fn test_gradle_typo_rule() {
+    let cases = ["gradel", "grdle"];
+    for typo in &cases {
+        let command = Command::new(format!("{} build", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == "gradle build"),
+            "gradle typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_gradle_subcommand_typo_rule() {
+    let cases = [("buid", "build"), ("tst", "test"), ("clena", "clean")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("gradle {}", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("gradle {}", expected)),
+            "gradle subcommand typo {typo} failed"
+        );
+    }
+}
+
+// -- Grep recursive rule --
+
+#[test]
+fn test_grep_recursive_rule() {
+    let command = Command::new("grep pattern".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+    let matches = corrector.find_corrections();
+    assert!(
+        matches
+            .iter()
+            .any(|m| m.corrected_command == "grep -r pattern"),
+        "grep recursive should suggest -r"
+    );
+}
+
+#[test]
+fn test_grep_recursive_not_added_when_already_present() {
+    let command = Command::new("grep -r pattern".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+    let matches = corrector.find_corrections();
+    assert!(
+        !matches.iter().any(|m| m.rule == "grep_recursive"),
+        "grep -r should not get recursive suggestion"
+    );
+}
+
+#[test]
+fn test_grep_recursive_not_added_when_flag_only() {
+    let command = Command::new("grep -v".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+    let matches = corrector.find_corrections();
+    assert!(
+        !matches.iter().any(|m| m.rule == "grep_recursive"),
+        "grep -v should not get recursive suggestion"
+    );
+}
+
+// -- Pacman rules --
+
+#[test]
+fn test_pacman_typo_rule() {
+    let cases = ["pacma", "pacmn"];
+    for typo in &cases {
+        let command = Command::new(format!("{} -Syu", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches.iter().any(|m| m.corrected_command == "pacman -Syu"),
+            "pacman typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_pacman_subcommand_typo_rule() {
+    let cases = [("-syu", "-Syu"), ("-Suy", "-Syu"), ("-s", "-S")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("pacman {}", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("pacman {}", expected)),
+            "pacman subcommand typo {typo} -> {expected} failed"
+        );
+    }
+}
+
+#[test]
+fn test_pacman_correct_command_not_corrected() {
+    let command = Command::new("pacman -Syu".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+    let matches = corrector.find_corrections();
+    assert!(
+        !matches.iter().any(|m| m.rule == "pacman_subcommand_typo"),
+        "correct pacman -Syu should not trigger typo rule"
+    );
+}
+
+// -- Pip typo rule (pip.rs) --
+
+#[test]
+fn test_pip_typo_rule() {
+    let command = Command::new("pi install requests".to_string());
+    let settings = Settings::default();
+    let corrector = Corrector::new(command, settings);
+    let matches = corrector.find_corrections();
+    assert!(
+        matches
+            .iter()
+            .any(|m| m.corrected_command == "pip install requests"),
+        "pip typo 'pi' should correct to 'pip'"
+    );
+}
+
+// -- PNPM rules --
+
+#[test]
+fn test_pnpm_typo_rule() {
+    let cases = ["pnmp", "pnp"];
+    for typo in &cases {
+        let command = Command::new(format!("{} install", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == "pnpm install"),
+            "pnpm typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_pnpm_subcommand_typo_rule() {
+    let cases = [("isntall", "install"), ("buid", "build"), ("rnu", "run")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("pnpm {} pkg", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("pnpm {} pkg", expected)),
+            "pnpm subcommand typo {typo} failed"
+        );
+    }
+}
+
+// -- UV rules --
+
+#[test]
+fn test_uv_typo_rule() {
+    let cases = ["vu", "ub"];
+    for typo in &cases {
+        let command = Command::new(format!("{} install", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches.iter().any(|m| m.corrected_command == "uv install"),
+            "uv typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_uv_subcommand_typo_rule() {
+    let cases = [("isntall", "install"), ("buid", "build"), ("snyc", "sync")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("uv {} pkg", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("uv {} pkg", expected)),
+            "uv subcommand typo {typo} failed"
+        );
+    }
+}
+
+// -- WinGet rules --
+
+#[test]
+fn test_winget_typo_rule() {
+    let cases = ["wingt", "wnget"];
+    for typo in &cases {
+        let command = Command::new(format!("{} install firefox", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == "winget install firefox"),
+            "winget typo {typo} failed"
+        );
+    }
+}
+
+#[test]
+fn test_winget_subcommand_typo_rule() {
+    let cases = [("isntall", "install"), ("upgarde", "upgrade")];
+    for (typo, expected) in &cases {
+        let command = Command::new(format!("winget {} pkg", typo));
+        let settings = Settings::default();
+        let corrector = Corrector::new(command, settings);
+        let matches = corrector.find_corrections();
+        assert!(
+            matches
+                .iter()
+                .any(|m| m.corrected_command == format!("winget {} pkg", expected)),
+            "winget subcommand typo {typo} failed"
+        );
+    }
+}
+
 // -- Extended git tests --
 
 #[test]
