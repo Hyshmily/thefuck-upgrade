@@ -1,4 +1,4 @@
-# The Fuck [![Version](https://img.shields.io/badge/version-3.34.0-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
+# The Fuck [![Version](https://img.shields.io/badge/version-3.33.1-blue.svg)](https://github.com/HyShmily/thefuck-upgrade)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HyShmily/thefuck-upgrade/blob/main/LICENSE)
 
@@ -17,15 +17,30 @@
 - 🔌 易扩展：规则系统模块化，方便添加新规则
 - 📦 现代工具链：Cargo、async/await、pre-commit、clippy
 
-## 3.34.0 更新摘要
+## 3.33.1 更新摘要
 
 > [!NOTE]
-> 本版本专注于性能优化、代码质量提升和测试覆盖率拓展。
+> 本版本重点是”新命令优先、旧命令平滑迁移”的纠错建议，并大幅扩展了规则覆盖范围。
 
-- ⚡ **性能优化**：新增 `rules/helpers.rs` 共享工具模块，所有 31 个规则文件采用惰性 parts 克隆，消除中间 `Vec<String>` 分配
-- 🧹 **代码清理**：移除 `pip.rs` 死代码、修复 pacman 自身引用的 typo bug、`history::add_command` 改为同步调用
-- ✅ **测试覆盖**：新增 26 个测试，覆盖全部 13 个之前未测试的规则文件（aws、az、bun、choco、dnf、gradle、grep、pacman、pip、pnpm、uv、winget），总计 **113 个测试**
-- 📦 **规则系统**：31 个规则模块文件，68 条注册规则，共享辅助函数
+- 增加 `git checkout` -> `git switch` / `git switch -c` 建议
+- 增加 `pip` -> `uv pip` 建议，并保留 `python -m pip` 兜底
+- 增加 Docker 旧命令向新子命令风格迁移建议
+- **规则覆盖扩展至 18 个类别、40+ 条规则：**
+  - **常见命令纠错**：`sl→ls`、`gerp→grep`、`mkae→make`、`ehco→echo`、`chomd→chmod`、`vom→vim` 等
+  - **Node.js**：npm/yarn/pnpm 命令和子命令拼写纠错
+  - **Rust**：Cargo 命令和子命令拼写纠错
+  - **Go**：Go 工具链命令和子命令拼写纠错
+  - **Pip**：pip 子命令拼写纠错
+  - **Homebrew**：brew 命令和子命令拼写纠错
+  - **APT**：apt/apt-get 命令和子命令拼写纠错，`apt-get→apt` 迁移建议
+  - **systemd**：systemctl 命令和子命令拼写纠错
+  - **Kubernetes**：kubectl 命令和子命令拼写纠错
+  - **Terraform**：Terraform 命令和子命令拼写纠错
+  - **Conda**：Conda 命令和子命令拼写纠错
+  - **空格/连字符纠错**：`cd..→cd ..`、`git-log→git log` 等
+  - 扩展 sudo 检测：支持 `yum`、`make install`、`npm install -g`
+  - 扩展 git 子命令纠错（stash、merge、diff、switch、restore、rebase、cherry-pick）
+  - 扩展 Docker 命令和子命令拼写纠错
 
 > [!TIP]
 > 如果你只想快速上手，先看“快速开始”；如果你要改代码，先看“项目结构”和“开发指南”。

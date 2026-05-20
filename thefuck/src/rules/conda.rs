@@ -1,4 +1,3 @@
-use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -23,9 +22,12 @@ pub fn conda_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => return None,
     };
 
+    let mut corrected = command.parts.clone();
+    corrected[0] = replacement.to_string();
+
     Some(MatchResult {
         rule: "conda_command",
-        corrected_command: helpers::replace_first(&command.parts, replacement),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -37,9 +39,12 @@ pub fn conda_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
 
     for &(correct, typos) in CONDA_SUBCOMMAND_TYPOS {
         if typos.contains(&command.parts[1].as_str()) {
+            let mut corrected = command.parts.clone();
+            corrected[1] = correct.to_string();
+
             return Some(MatchResult {
                 rule: "conda_subcommand_typo",
-                corrected_command: helpers::replace_part(&command.parts, 1, correct),
+                corrected_command: corrected.join(" "),
                 similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
             });
         }

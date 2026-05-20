@@ -1,17 +1,17 @@
-use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
 const PACMAN_SUBCOMMANDS: &[&str] = &[
     "-S", "-R", "-Q", "-D", "-U", "-T", "-F", "-V", "-h", "-Si", "-Ss", "-Su", "-Syu", "-Syyu",
-    "-Syy", "-Rs", "-Rns", "-Rdd", "-Rn", "-Rsn", "-Qs", "-Qi", "-Ql", "-Qe", "-Qm", "-Qo", "-Qdt",
+    "-Syu", "-Syy", "-Rs", "-Rns", "-Rdd", "-Rn", "-Rsn", "-Qs", "-Qi", "-Ql", "-Qe", "-Qm", "-Qo",
+    "-Qdt",
 ];
 
 const PACMAN_SUBCOMMAND_TYPOS: &[(&str, &[&str])] = &[
     ("-S", &["-s", "- s", "s-"]),
     ("-R", &["-r", "- r", "r-"]),
     ("-Q", &["-q", "- q", "q-"]),
-    ("-Syu", &["-syu", "-Suy"]),
+    ("-Syu", &["-syu", "-Suy", "-Syu"]),
 ];
 
 const THRESHOLD: f64 = 0.75;
@@ -30,9 +30,12 @@ pub fn pacman_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => return None,
     };
 
+    let mut corrected = command.parts.clone();
+    corrected[0] = replacement.to_string();
+
     Some(MatchResult {
         rule: "pacman_command",
-        corrected_command: helpers::replace_first(&command.parts, replacement),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -48,9 +51,12 @@ pub fn pacman_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     }
 
     let (corrected_sub, similarity) = find_match(arg)?;
+    let mut corrected = command.parts.clone();
+    corrected[1] = corrected_sub;
+
     Some(MatchResult {
         rule: "pacman_subcommand_typo",
-        corrected_command: helpers::replace_part(&command.parts, 1, &corrected_sub),
+        corrected_command: corrected.join(" "),
         similarity,
     })
 }

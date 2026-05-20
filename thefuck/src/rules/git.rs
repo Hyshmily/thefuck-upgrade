@@ -1,4 +1,3 @@
-use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -101,9 +100,12 @@ pub fn git_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => None,
     }?;
 
+    let mut corrected = command.parts.clone();
+    corrected[0] = replacement.to_string();
+
     Some(MatchResult {
         rule: "git_command",
-        corrected_command: helpers::replace_first(&command.parts, replacement),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -119,9 +121,12 @@ pub fn git_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
     }
 
     let (corrected_sub, similarity) = find_match(arg)?;
+    let mut corrected = command.parts.clone();
+    corrected[1] = corrected_sub;
+
     Some(MatchResult {
         rule: "git_subcommand_typo",
-        corrected_command: helpers::replace_part(&command.parts, 1, &corrected_sub),
+        corrected_command: corrected.join(" "),
         similarity,
     })
 }
@@ -152,9 +157,12 @@ pub fn git_force_with_lease_rule(command: &Command) -> Option<MatchResult> {
         .parts
         .iter()
         .position(|part| part == "--force" || part == "-f")?;
+    let mut corrected = command.parts.clone();
+    corrected[force_index] = "--force-with-lease".to_string();
+
     Some(MatchResult {
         rule: "git_force_with_lease",
-        corrected_command: helpers::replace_part(&command.parts, force_index, "--force-with-lease"),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_FORCE,
     })
 }
@@ -169,9 +177,11 @@ pub fn git_checkout_to_switch_rule(command: &Command) -> Option<MatchResult> {
             return None;
         }
 
+        let mut corrected = vec!["git".to_string(), "switch".to_string(), "-c".to_string()];
+        corrected.extend(command.parts.iter().skip(3).cloned());
         return Some(MatchResult {
             rule: "git_checkout_to_switch",
-            corrected_command: helpers::prepend(&command.parts[3..], &["git", "switch", "-c"]),
+            corrected_command: corrected.join(" "),
             similarity: util::SIMILARITY_BRANCH,
         });
     }
@@ -180,9 +190,12 @@ pub fn git_checkout_to_switch_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
+    let mut corrected = vec!["git".to_string(), "switch".to_string()];
+    corrected.extend(command.parts.iter().skip(2).cloned());
+
     Some(MatchResult {
         rule: "git_checkout_to_switch",
-        corrected_command: helpers::prepend(&command.parts[2..], &["git", "switch"]),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_BRANCH,
     })
 }

@@ -1,4 +1,3 @@
-use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -23,9 +22,12 @@ pub fn apt_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => None,
     }?;
 
+    let mut corrected = command.parts.clone();
+    corrected[0] = replacement.to_string();
+
     Some(MatchResult {
         rule: "apt_command",
-        corrected_command: helpers::replace_first(&command.parts, replacement),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -42,9 +44,12 @@ pub fn apt_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
 
     for &(correct, typos) in APT_SUBCOMMAND_TYPOS {
         if typos.contains(&command.parts[1].as_str()) {
+            let mut corrected = command.parts.clone();
+            corrected[1] = correct.to_string();
+
             return Some(MatchResult {
                 rule: "apt_subcommand_typo",
-                corrected_command: helpers::replace_part(&command.parts, 1, correct),
+                corrected_command: corrected.join(" "),
                 similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
             });
         }
@@ -58,9 +63,12 @@ pub fn apt_get_to_apt_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
+    let mut corrected = vec!["apt".to_string()];
+    corrected.extend(command.parts.iter().skip(1).cloned());
+
     Some(MatchResult {
         rule: "apt_get_to_apt",
-        corrected_command: helpers::prepend(&command.parts[1..], &["apt"]),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_MIGRATION,
     })
 }

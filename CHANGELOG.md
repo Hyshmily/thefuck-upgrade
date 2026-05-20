@@ -2,22 +2,6 @@
 
 All notable changes to this project are documented in this file.
 
-## [3.34.0] - 2026-05-20
-
-### Performance
-- **Lazy parts cloning**: Created `rules/helpers.rs` with `replace_first`, `replace_part`, `prepend` utilities, eliminating intermediate `Vec<String>` allocations across all 31 rule files. All rules now build corrected commands directly without cloning `command.parts`.
-- **Sync history I/O**: `history::add_command` changed from `async` to synchronous — it performed purely synchronous file I/O with no `.await` calls.
-
-### Bug Fixes
-- Fixed pacman self-referencing typo: `-Syu` was listed as both a valid subcommand and a typo of itself in `PACMAN_SUBCOMMAND_TYPOS`.
-- Fixed duplicate `-Syu` entry in `PACMAN_SUBCOMMANDS`.
-- Removed dead code from `pip.rs`: `PIP_SUBCOMMAND_TYPOS` and `pip_subcommand_typo_rule` were verbatim duplicates of `python.rs` versions and never registered in `RuleRegistry`.
-
-### Testing
-- Expanded test coverage from 87 to 113 tests (+26 new tests).
-- Added comprehensive tests for all 13 previously uncovered rule files: aws, az, bun, choco, dnf, gradle, grep, pacman, pip, pnpm, uv, winget.
-- Each uncovered file now has typo correction, subcommand typo, and negative case tests.
-
 ## [3.33.0] - 2026-04-24
 
 ### Added

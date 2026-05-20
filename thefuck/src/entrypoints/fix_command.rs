@@ -52,7 +52,7 @@ pub async fn run(options: FixOptions) -> Result<()> {
         let selected = &corrections[index];
         println!("Executing: {}", selected.corrected_command);
         if alter_history {
-            history::add_command(&cmd_raw)?;
+            history::add_command(cmd_raw).await?;
         }
         execute_command(&selected.corrected_command).await?;
     }

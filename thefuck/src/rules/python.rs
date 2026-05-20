@@ -1,4 +1,3 @@
-use crate::rules::helpers;
 use crate::types::{Command, MatchResult};
 use crate::util;
 
@@ -29,9 +28,12 @@ pub fn python_typo_rule(command: &Command) -> Option<MatchResult> {
         _ => return None,
     };
 
+    let mut corrected = command.parts.clone();
+    corrected[0] = corrected_bin.to_string();
+
     Some(MatchResult {
         rule: "python_command",
-        corrected_command: helpers::replace_first(&command.parts, corrected_bin),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_TYPO,
     })
 }
@@ -50,9 +52,12 @@ pub fn pip_to_uv_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
+    let mut corrected = vec!["uv".to_string(), pip_bin.to_string()];
+    corrected.extend(command.parts.iter().skip(1).cloned());
+
     Some(MatchResult {
         rule: "python_pip_to_uv",
-        corrected_command: helpers::prepend(&command.parts[1..], &["uv", pip_bin]),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
     })
 }
@@ -60,9 +65,12 @@ pub fn pip_to_uv_rule(command: &Command) -> Option<MatchResult> {
 pub fn pip_to_python_module_rule(command: &Command) -> Option<MatchResult> {
     let pip_bin = is_pip_bin(command)?;
 
+    let mut corrected = vec!["python".to_string(), "-m".to_string(), pip_bin.to_string()];
+    corrected.extend(command.parts.iter().skip(1).cloned());
+
     Some(MatchResult {
         rule: "python_pip_module",
-        corrected_command: helpers::prepend(&command.parts[1..], &["python", "-m", pip_bin]),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_UPSTREAM,
     })
 }
@@ -76,9 +84,12 @@ pub fn pip_subcommand_typo_rule(command: &Command) -> Option<MatchResult> {
 
     for &(correct, typos) in PIP_SUBCOMMAND_TYPOS {
         if typos.contains(&command.parts[1].as_str()) {
+            let mut corrected = command.parts.clone();
+            corrected[1] = correct.to_string();
+
             return Some(MatchResult {
                 rule: "pip_subcommand_typo",
-                corrected_command: helpers::replace_part(&command.parts, 1, correct),
+                corrected_command: corrected.join(" "),
                 similarity: util::SIMILARITY_SUBCOMMAND_TYPO,
             });
         }

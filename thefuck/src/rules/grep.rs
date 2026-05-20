@@ -23,9 +23,12 @@ pub fn grep_recursive_rule(command: &Command) -> Option<MatchResult> {
         return None;
     }
 
+    let mut corrected = command.parts.clone();
+    corrected.insert(1, "-r".to_string());
+
     Some(MatchResult {
         rule: "grep_recursive",
-        corrected_command: format!("grep -r {}", command.parts[1..].join(" ")),
+        corrected_command: corrected.join(" "),
         similarity: util::SIMILARITY_BRANCH,
     })
 }

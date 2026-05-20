@@ -16,7 +16,6 @@ pub mod git;
 pub mod go;
 pub mod gradle;
 pub mod grep;
-pub mod helpers;
 pub mod kubectl;
 pub mod maven;
 pub mod missing_space;

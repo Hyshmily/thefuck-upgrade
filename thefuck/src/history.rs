@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 const MAX_HISTORY_LINES: usize = 1000;
 
-pub fn add_command(command: &str) -> Result<()> {
+pub async fn add_command(command: String) -> Result<()> {
     let path = history_path()?;
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
@@ -13,7 +13,7 @@ pub fn add_command(command: &str) -> Result<()> {
 
     let existing = fs::read_to_string(&path).unwrap_or_default();
     let mut lines: Vec<&str> = existing.lines().collect();
-    lines.push(command);
+    lines.push(&command);
     if lines.len() > MAX_HISTORY_LINES {
         lines = lines[lines.len() - MAX_HISTORY_LINES..].to_vec();
     }
